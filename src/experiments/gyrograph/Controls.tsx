@@ -73,6 +73,7 @@ export default function Controls({
       <NumberInput label="Speed" value={config.speed} min={0.1} max={5} step={0.1} onChange={(speed) => onChange({ speed })} />
       <NumberInput label="Trail" value={config.trail} min={0} max={5000} step={50} onChange={(trail) => onChange({ trail })} />
       <NumberInput label="Line width" value={config.width} min={0.5} max={5} step={0.1} onChange={(width) => onChange({ width })} />
+      <NumberInput label="Alpha" value={config.alpha} min={0.01} max={1} step={0.01} onChange={(alpha) => onChange({ alpha })} />
       <ColorPicker label="Stroke" value={config.stroke} onChange={(stroke) => onChange({ stroke })} />
       <ColorPicker label="Background" value={config.bg} onChange={(bg) => onChange({ bg })} />
     </div>
