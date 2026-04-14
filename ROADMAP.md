@@ -10,7 +10,7 @@ be added with zero setup friction. Live at
 `https://muwamath.github.io/diversion/`, deployed by GitHub Actions on push
 to `main`.
 
-### Phase 2 — First experiment (Gyrograph) · *in-progress*
+### Phase 2 — First experiment (Gyrograph) · *done 2026-04-14*
 Ship the first interactive experiment end-to-end: a hypotrochoid curve
 drawer ("Gyrograph") with live-updating number inputs, URL-as-state
 sharing, and a fullscreen screensaver mode. Establishes the per-experiment
@@ -29,6 +29,4 @@ basic navigation between them.
 
 Current tactical work, scoped to the active phase. Prune as items land.
 
-- [ ] Code review pass on Phase 2 diff
-- [ ] Final verification: local dev, prod build, deploy, live check
-- [ ] Update README with adding-an-experiment section
+(No active todos — next phase not yet started.)
