@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import type { GyrographConfig } from './schema'
-import { drawCurves, drawOverlay } from './draw'
+import { drawCurves, drawOverlay, isMechanismVisible } from './draw'
 import { walkChain, type Frame } from './chain'
 
 function segmentGeoKey(seg: { r: number; side: string; d: number }) {
@@ -98,7 +98,7 @@ export default function Renderer({
 
       drawCurves(ctx, cfg, buffersRef.current)
 
-      const visible = mode === 'edit' || !cfg.hideLive
+      const visible = isMechanismVisible(mode, cfg.hideLive)
       drawOverlay(ctx, cfg, frames, {
         showArms: cfg.arms && visible,
         showCircles: cfg.circles && visible,

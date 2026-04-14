@@ -3,7 +3,7 @@ import type { GyrographConfig } from './schema'
 export const defaults: GyrographConfig = {
   R: 200,
   bg: '#0a0a0a',
-  speed: 1,
+  speed: 0.1,
   trail: 2000,
   arms: false,
   circles: false,

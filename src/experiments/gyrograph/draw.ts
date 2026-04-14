@@ -6,6 +6,13 @@ export interface OverlayState {
   showCircles: boolean
 }
 
+export function isMechanismVisible(
+  mode: 'edit' | 'live',
+  hideLive: boolean,
+): boolean {
+  return mode === 'edit' || !hideLive
+}
+
 const CHUNK_SIZE = 20
 
 export function drawCurves(

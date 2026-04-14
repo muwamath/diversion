@@ -254,7 +254,11 @@ export default function Controls({
         <CheckboxInput label="Show arms" value={config.arms} onChange={(arms) => onChange({ arms })} />
         <CheckboxInput label="Show circles" value={config.circles} onChange={(circles) => onChange({ circles })} />
         {(config.arms || config.circles) && (
-          <CheckboxInput label="Hide in fullscreen" value={config.hideLive} onChange={(hideLive) => onChange({ hideLive })} />
+          <CheckboxInput
+            label="Show mechanism in fullscreen"
+            value={!config.hideLive}
+            onChange={(v) => onChange({ hideLive: !v })}
+          />
         )}
       </section>
 
