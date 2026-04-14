@@ -19,6 +19,17 @@ npm run build
 npm run preview  # serve the built artifact locally
 ```
 
+## Tests
+
+```bash
+npm test          # watch mode (Vitest + React Testing Library)
+npm run test:run  # one-shot; this is the CI gate before the build step
+```
+
+Tests live next to the code they cover (`*.test.ts` / `*.test.tsx`). The
+suite is intentionally narrow: schema serialization, draw-math, router
+URL matrix, and the regression for `useExperimentConfig`.
+
 ## Adding an experiment
 
 Each experiment lives in `src/experiments/<slug>/` and exports a single
