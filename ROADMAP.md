@@ -50,28 +50,19 @@ to see on screen, more to play with. Items ordered simplest first.
    two values over a configurable period, so e.g. R can drift between
    180 and 220, or d can oscillate to make the curve breathe. Applies
    independently to each oscillation-capable field.
-8. **Nested trochoid chain (replaces the earlier "multi-arm" item)** —
-   generalize the single-level hypotrochoid into a chain of rolling
-   circles, each rolling inside OR outside its parent. Each level
-   ("segment") has its own pen, so N segments produce N independent
-   curves from one linked mechanism. Also a major UI restructure:
-   break the sidebar into pinned top (cycle-time readout), scrolling
-   middle (globals + per-segment sections), and pinned bottom (share
-   bar). Add/remove segments from the UI. Add "show mechanism in
-   live" toggle.
-   - **Global config**: R (outermost fixed radius), bg, speed, show
-     arms, show circles, show mechanism in live.
-   - **Per-segment config**: r, side (`inside` | `outside`), d (pen
-     offset), stroke, width, alpha, visible (whether this segment's
-     pen draws).
-   - Replaces the previous "multi-arm parallel independent pens"
-     direction. The nested model is simultaneously simpler (one
-     mechanism chain instead of N parallel ones) and more powerful
-     (reaches curves unreachable by a single-level trochoid).
-   - Still to decide when this item kicks off: max segment depth,
-     URL encoding scheme for the nested structure, cycle-time
-     calculation for the composed system, backward compatibility
-     with current flat URLs.
+8. ~~**Nested trochoid chain (replaces the earlier "multi-arm" item)**~~
+   *done 2026-04-14 — chain of up to 6 rolling segments, each
+   rolling inside/outside its parent, each with its own pen, all
+   driven by one linked mechanism. Globals: R, bg, speed, trail,
+   arms, circles, `Show mechanism in fullscreen`. Per-segment: r,
+   side (inside/outside), d, stroke, width, alpha, visible. Three-
+   region sidebar: pinned-top cycle-time readout, scrolling-middle
+   globals + per-segment sections with add/remove/up-down reorder,
+   pinned-bottom share bar. URL schema: globals as individual
+   params, segments packed into one `seg=...` param. Pure math in
+   new `chain.ts` (walkChain) and `cycleTime.ts` (composed LCM).
+   Old flat URL shape intentionally dropped — no prod users. Spec:
+   `docs/superpowers/specs/2026-04-14-nested-trochoid-chain-design.md`.*
 
 ### Phase 3 — Catalog · *pending*
 Grow from one experiment to several, with a landing page that lists them and

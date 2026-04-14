@@ -27,8 +27,10 @@ npm run test:run  # one-shot; this is the CI gate before the build step
 ```
 
 Tests live next to the code they cover (`*.test.ts` / `*.test.tsx`). The
-suite is intentionally narrow: schema serialization, draw-math, router
-URL matrix, and the regression for `useExperimentConfig`.
+suite covers schema serialization, the `walkChain` math (hypotrochoid
+and epitrochoid reduction at N=1), cycle-time LCM math, mechanism
+visibility, router URL matrix, ShareBar, and the regression for
+`useExperimentConfig`.
 
 ## Adding an experiment
 
@@ -42,8 +44,10 @@ src/experiments/<slug>/
   defaults.ts    — default config values
   Controls.tsx   — form inputs for this experiment
   Renderer.tsx   — canvas component (receives config + size)
-  draw.ts        — pure drawing function (all math here)
-  index.ts       — re-exports a single Experiment object
+  draw.ts        — canvas drawing functions
+  index.ts       — re-exports a single Experiment object (may also
+                   provide an optional TopBar component for the
+                   pinned-top region of the edit sidebar)
 ```
 
 Then register it in `src/experiments/registry.ts`.

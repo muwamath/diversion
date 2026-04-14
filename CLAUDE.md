@@ -22,12 +22,19 @@ Stack: Vite + React 19 + TypeScript. No styling library — plain CSS.
 
 ## Current experiments
 
-- **Gyrograph** (`gyrograph`) — hypotrochoid curve drawer with
-  configurable radii, pen offset, speed, trail length, line width,
-  line opacity (alpha), colors, and an optional mechanism overlay
-  that shows the outer fixed circle, the rolling inner circle, and
-  the pen arm (toggleable per-mode via `arms`, `circles`,
-  `hideLive` config fields).
+- **Gyrograph** (`gyrograph`) — nested trochoid chain drawer. A global
+  outer circle `R` plus a chain of up to 6 rolling segments, each
+  rolling inside or outside its parent. Every segment has its own pen,
+  so N segments produce N curves from one linked mechanism. Globals:
+  `R`, `bg`, `speed`, `trail`, and mechanism-overlay toggles (`arms`,
+  `circles`, `hideLive`). Per-segment: `r`, `side` (inside/outside),
+  `d` (pen offset), `stroke`, `width`, `alpha`, `visible`. The edit
+  sidebar is three regions — pinned-top cycle-time readout + experiment
+  list, scrolling-middle globals and per-segment sections with add /
+  remove / up-down reorder, pinned-bottom share bar. The pure math
+  lives in `chain.ts` (`walkChain`) and `cycleTime.ts` (composed LCM
+  readout). URL schema: globals as individual params, segments packed
+  into one `seg=r,side,d,stroke,width,alpha,visible;...` param.
 
 ## Conventions
 
