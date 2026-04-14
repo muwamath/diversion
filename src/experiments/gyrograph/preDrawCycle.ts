@@ -4,7 +4,7 @@ import { cycleTimeSeconds, RADIANS_PER_SECOND } from './cycleTime'
 import { computeEffectiveTrail, REFERENCE_FPS } from './effectiveTrail'
 
 export interface PreDrawResult {
-  buffers: Array<Array<{ x: number; y: number }>>
+  buffers: Array<Array<{ x: number; y: number; t: number }>>
   tEnd: number
 }
 
@@ -29,7 +29,7 @@ export function preDrawBuffers(config: GyrographConfig): PreDrawResult | null {
     d: s.d,
   }))
 
-  const buffers: Array<Array<{ x: number; y: number }>> = config.segments.map(() => [])
+  const buffers: Array<Array<{ x: number; y: number; t: number }>> = config.segments.map(() => [])
 
   for (let i = 1; i <= nFrames; i++) {
     const t = i * tDeltaPerFrame
@@ -37,7 +37,7 @@ export function preDrawBuffers(config: GyrographConfig): PreDrawResult | null {
     for (let k = 0; k < frames.length; k++) {
       const f = frames[k]
       if (!Number.isFinite(f.penX) || !Number.isFinite(f.penY)) continue
-      buffers[k].push({ x: f.penX, y: f.penY })
+      buffers[k].push({ x: f.penX, y: f.penY, t })
     }
   }
 

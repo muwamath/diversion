@@ -106,4 +106,17 @@ describe('preDrawBuffers', () => {
       }
     }
   })
+
+  it('populates monotonically-increasing .t stamps on each point', () => {
+    const cfg = { ...base(), preDrawCycle: true, autoTrail: true }
+    const result = preDrawBuffers(cfg)!
+    for (const buf of result.buffers) {
+      for (let i = 0; i < buf.length; i++) {
+        expect(Number.isFinite(buf[i].t)).toBe(true)
+        if (i > 0) {
+          expect(buf[i].t).toBeGreaterThan(buf[i - 1].t)
+        }
+      }
+    }
+  })
 })

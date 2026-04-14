@@ -5,7 +5,7 @@ import { walkChain, type Frame } from './chain'
 import { RADIANS_PER_SECOND } from './cycleTime'
 import { computeResetRange } from './resetRange'
 import { maxPenExtent } from './extent'
-import { computeEffectiveTrail } from './effectiveTrail'
+import { computeCycleTWindow } from './effectiveTrail'
 import { preDrawBuffers } from './preDrawCycle'
 
 function segmentGeoKey(seg: { r: number; side: string; d: number }) {
@@ -24,7 +24,7 @@ export default function Renderer({
   mode?: 'edit' | 'live'
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const buffersRef = useRef<Array<Array<{ x: number; y: number }>>>([])
+  const buffersRef = useRef<Array<Array<{ x: number; y: number; t: number }>>>([])
   const tRef = useRef(0)
   const configRef = useRef(config)
   const extentRef = useRef(maxPenExtent(config))
@@ -102,13 +102,27 @@ export default function Renderer({
         buffersRef.current.push([])
       }
 
-      const cap = computeEffectiveTrail(cfg)
-      for (let k = 0; k < frames.length; k++) {
-        const buf = buffersRef.current[k]
-        if (!buf) continue
-        buf.push({ x: frames[k].penX, y: frames[k].penY })
-        if (cap > 0 && buf.length > cap) {
-          buffersRef.current[k] = buf.slice(-cap)
+      const currentT = tRef.current
+      if (cfg.autoTrail) {
+        const tWindow = computeCycleTWindow(cfg)
+        const cutoff = currentT - tWindow
+        for (let k = 0; k < frames.length; k++) {
+          const buf = buffersRef.current[k]
+          if (!buf) continue
+          buf.push({ x: frames[k].penX, y: frames[k].penY, t: currentT })
+          let dropIdx = 0
+          while (dropIdx < buf.length && buf[dropIdx].t < cutoff) dropIdx++
+          if (dropIdx > 0) buffersRef.current[k] = buf.slice(dropIdx)
+        }
+      } else {
+        const cap = Math.max(0, Math.round(cfg.trail))
+        for (let k = 0; k < frames.length; k++) {
+          const buf = buffersRef.current[k]
+          if (!buf) continue
+          buf.push({ x: frames[k].penX, y: frames[k].penY, t: currentT })
+          if (cap > 0 && buf.length > cap) {
+            buffersRef.current[k] = buf.slice(-cap)
+          }
         }
       }
 

@@ -1,8 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { computeEffectiveTrail, REFERENCE_FPS } from './effectiveTrail'
+import {
+  computeEffectiveTrail,
+  computeCycleTWindow,
+  REFERENCE_FPS,
+} from './effectiveTrail'
 import { defaults } from './defaults'
 import type { GyrographConfig } from './schema'
-import { cycleTimeSeconds } from './cycleTime'
+import { cycleTimeSeconds, RADIANS_PER_SECOND } from './cycleTime'
 
 const base = (): GyrographConfig => ({ ...defaults, segments: defaults.segments.map((s) => ({ ...s })) })
 
@@ -87,5 +91,44 @@ describe('computeEffectiveTrail', () => {
       expect(result).toBeGreaterThanOrEqual(0)
       expect(Number.isInteger(result)).toBe(true)
     }
+  })
+})
+
+describe('computeCycleTWindow', () => {
+  it('returns the exact cycle t-span for a finite short cycle', () => {
+    const cfg = { ...base(), maxHistorySeconds: 180, speed: 1 }
+    const seconds = cycleTimeSeconds(cfg)
+    const expected = seconds * RADIANS_PER_SECOND * cfg.speed
+    expect(computeCycleTWindow(cfg)).toBeCloseTo(expected, 6)
+  })
+
+  it('is speed-invariant for the same geometry (cycleT = 2\u03c0 * composedPeriodUnits)', () => {
+    const a = { ...base(), speed: 1 }
+    const b = { ...base(), speed: 4 }
+    expect(computeCycleTWindow(a)).toBeCloseTo(computeCycleTWindow(b), 6)
+  })
+
+  it('caps at maxHistorySeconds * RADIANS_PER_SECOND * speed when cycle exceeds the ceiling', () => {
+    const cfg = { ...base(), maxHistorySeconds: 180, speed: 0.001 }
+    const seconds = cycleTimeSeconds(cfg)
+    expect(seconds).toBeGreaterThan(180)
+    const expected = 180 * RADIANS_PER_SECOND * cfg.speed
+    expect(computeCycleTWindow(cfg)).toBeCloseTo(expected, 6)
+  })
+
+  it('falls back to ceiling t-window for infinite cycles', () => {
+    const cfg: GyrographConfig = {
+      ...base(),
+      maxHistorySeconds: 60,
+      R: 10007,
+      segments: [
+        { r: 5003, side: 'inside', d: 100, stroke: '#fff', width: 1, alpha: 0.5, visible: true },
+        { r: 5009, side: 'inside', d: 100, stroke: '#fff', width: 1, alpha: 0.5, visible: true },
+        { r: 5011, side: 'inside', d: 100, stroke: '#fff', width: 1, alpha: 0.5, visible: true },
+      ],
+    }
+    expect(Number.isFinite(cycleTimeSeconds(cfg))).toBe(false)
+    const expected = 60 * RADIANS_PER_SECOND * cfg.speed
+    expect(computeCycleTWindow(cfg)).toBeCloseTo(expected, 6)
   })
 })
