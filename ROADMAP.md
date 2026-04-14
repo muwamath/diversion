@@ -86,6 +86,7 @@ Items identified but not scheduled to a specific phase yet.
 - **Edit-mode playback controls (replaces live URL)** — rework the gyrograph edit UI to add playback controls, and drop the `/:slug/live` fullscreen route entirely (folding its "screensaver" intent into edit mode):
   - **Play/pause button** — pauses the animation. When paused, force-show arms and circles (regardless of the Show arms/Show circles toggles) so the mechanism is visible while tweaking config.
   - **Step forward / step back** — while paused, nudge the animation one small t-unit at a time to land on a specific frame.
+  - **Fast forward** — while paused or running, skip ahead by a larger t-increment (or play temporarily at an accelerated rate) so the user doesn't have to wait a full cycle to preview something.
   - **Reset orientation** — snap all segments so their arms "point right" (t=0 alignment) so wheel sizes and pen arms are obvious at a glance.
   - Supersedes the earlier "Live-mode options menu" backlog item, which assumed the live route would stick around.
 - **Longest-cycle saved preset** — a computed gyrograph preset that maximizes the composed-LCM cycle-time readout across all segments. Would serve as a "fun" saved session demonstrating the longest possible non-repeating trace for a given segment count.
