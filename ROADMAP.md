@@ -20,6 +20,8 @@ folder pattern that future experiments will follow.
 - Revisit the display/show page URL structure (currently `/show/:slug`)
 - Number input UX refinements (constrained ranges, validation)
 - Animation pause/play toggle
+- Gyrograph: configurable trail duration (how long the line lasts)
+- Gyrograph: configurable trail alpha (line opacity)
 
 ### Phase 3 — Catalog · *pending*
 Grow from one experiment to several, with a landing page that lists them and
