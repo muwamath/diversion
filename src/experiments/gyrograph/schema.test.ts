@@ -75,4 +75,34 @@ describe('gyrograph schema', () => {
     const decoded = schema.parse(new URLSearchParams({ alpha: 'abc' }))
     expect(decoded.alpha).toBe(defaults.alpha)
   })
+
+  it('round-trips the mechanism visibility flags', () => {
+    const custom = {
+      ...defaults,
+      arms: true,
+      circles: true,
+      hideLive: false,
+    }
+    const roundTripped = schema.parse(schema.stringify(custom))
+    expect(roundTripped.arms).toBe(true)
+    expect(roundTripped.circles).toBe(true)
+    expect(roundTripped.hideLive).toBe(false)
+  })
+
+  it('returns default mechanism flags when missing', () => {
+    const decoded = schema.parse(new URLSearchParams())
+    expect(decoded.arms).toBe(false)
+    expect(decoded.circles).toBe(false)
+    expect(decoded.hideLive).toBe(true)
+  })
+
+  it('parses arms=1 as true and arms=0 as false', () => {
+    expect(schema.parse(new URLSearchParams({ arms: '1' })).arms).toBe(true)
+    expect(schema.parse(new URLSearchParams({ arms: '0' })).arms).toBe(false)
+  })
+
+  it('falls through to default for non-boolean arms input', () => {
+    const decoded = schema.parse(new URLSearchParams({ arms: 'abc' }))
+    expect(decoded.arms).toBe(defaults.arms)
+  })
 })
