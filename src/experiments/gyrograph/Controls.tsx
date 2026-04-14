@@ -35,6 +35,29 @@ function NumberInput({
   )
 }
 
+function CheckboxInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: boolean
+  onChange: (v: boolean) => void
+}) {
+  return (
+    <div className="control-row">
+      <label>
+        <input
+          type="checkbox"
+          checked={value}
+          onChange={(e) => onChange(e.target.checked)}
+        />
+        {label}
+      </label>
+    </div>
+  )
+}
+
 function ColorPicker({
   label,
   value,
@@ -76,6 +99,11 @@ export default function Controls({
       <NumberInput label="Alpha" value={config.alpha} min={0.01} max={1} step={0.01} onChange={(alpha) => onChange({ alpha })} />
       <ColorPicker label="Stroke" value={config.stroke} onChange={(stroke) => onChange({ stroke })} />
       <ColorPicker label="Background" value={config.bg} onChange={(bg) => onChange({ bg })} />
+      <CheckboxInput label="Show arms" value={config.arms} onChange={(arms) => onChange({ arms })} />
+      <CheckboxInput label="Show circles" value={config.circles} onChange={(circles) => onChange({ circles })} />
+      {(config.arms || config.circles) && (
+        <CheckboxInput label="Hide in fullscreen" value={config.hideLive} onChange={(hideLive) => onChange({ hideLive })} />
+      )}
     </div>
   )
 }
