@@ -8,21 +8,24 @@ export interface PreDrawResult {
   tEnd: number
 }
 
-export function preDrawBuffers(config: GyrographConfig): PreDrawResult | null {
+export function preDrawBuffers(
+  config: GyrographConfig,
+  fps: number = REFERENCE_FPS,
+): PreDrawResult | null {
   if (!config.preDrawCycle) return null
 
-  const cap = computeEffectiveTrail(config)
+  const cap = computeEffectiveTrail(config, fps)
   if (cap === 0) return null
 
   const seconds = cycleTimeSeconds(config)
   const cycleFrames = Number.isFinite(seconds) && seconds > 0
-    ? Math.round(seconds * REFERENCE_FPS)
+    ? Math.round(seconds * fps)
     : Infinity
 
   const nFrames = Math.min(cap, cycleFrames)
   if (nFrames <= 0 || !Number.isFinite(nFrames)) return null
 
-  const tDeltaPerFrame = (1 / REFERENCE_FPS) * RADIANS_PER_SECOND * config.speed
+  const tDeltaPerFrame = (1 / fps) * RADIANS_PER_SECOND * config.speed
   const geometry = config.segments.map((s) => ({
     r: s.r,
     side: s.side,

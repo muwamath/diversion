@@ -3,14 +3,17 @@ import { cycleTimeSeconds, RADIANS_PER_SECOND } from './cycleTime'
 
 export const REFERENCE_FPS = 60
 
-export function computeEffectiveTrail(config: GyrographConfig): number {
+export function computeEffectiveTrail(
+  config: GyrographConfig,
+  fps: number = REFERENCE_FPS,
+): number {
   if (!config.autoTrail) {
     return Math.max(0, Math.round(config.trail))
   }
 
   const ceilingFrames = Math.max(
     1,
-    Math.round(config.maxHistorySeconds * REFERENCE_FPS),
+    Math.round(config.maxHistorySeconds * fps),
   )
 
   const seconds = cycleTimeSeconds(config)
@@ -18,7 +21,7 @@ export function computeEffectiveTrail(config: GyrographConfig): number {
     return ceilingFrames
   }
 
-  const cycleFrames = Math.max(1, Math.round(seconds * REFERENCE_FPS))
+  const cycleFrames = Math.max(1, Math.round(seconds * fps))
   return Math.min(cycleFrames, ceilingFrames)
 }
 

@@ -7,6 +7,7 @@ import { computeResetRange } from './resetRange'
 import { maxPenExtent } from './extent'
 import { computeCycleTWindow } from './effectiveTrail'
 import { preDrawBuffers } from './preDrawCycle'
+import { ensureMeasurement, getMeasuredFps } from './fpsMeter'
 
 function segmentGeoKey(seg: { r: number; side: string; d: number }) {
   return `${seg.r}-${seg.side}-${seg.d}`
@@ -36,6 +37,10 @@ export default function Renderer({
     extentRef.current = maxPenExtent(config)
   }, [config])
 
+  useEffect(() => {
+    ensureMeasurement()
+  }, [])
+
   const segmentKeysJoined = config.segments.map(segmentGeoKey).join('|')
 
   useEffect(() => {
@@ -58,10 +63,20 @@ export default function Renderer({
       }
     }
 
-    const preDraw = preDrawBuffers(config)
+    const preDraw = preDrawBuffers(config, getMeasuredFps())
     if (preDraw) {
       buffersRef.current = preDraw.buffers
       tRef.current = preDraw.tEnd
+      // Force immediate clear so the previous frame's curve doesn't briefly
+      // bleed through while the loop gets to its next draw tick.
+      const canvas = canvasRef.current
+      if (canvas) {
+        const ctx = canvas.getContext('2d')
+        if (ctx) {
+          ctx.fillStyle = config.bg
+          ctx.fillRect(0, 0, canvas.width, canvas.height)
+        }
+      }
     }
 
     prevRRef.current = config.R
