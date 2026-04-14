@@ -20,6 +20,7 @@ export function drawHypotrochoid(
 
   ctx.save()
   ctx.scale(dpr, dpr)
+  ctx.globalAlpha = config.alpha
   ctx.strokeStyle = config.stroke
   ctx.lineWidth = config.width
   ctx.lineJoin = 'round'
