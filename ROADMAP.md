@@ -91,6 +91,7 @@ Items identified but not scheduled to a specific phase yet.
 - **Longest-cycle saved preset** — a computed gyrograph preset that maximizes the composed-LCM cycle-time readout across all segments. Would serve as a "fun" saved session demonstrating the longest possible non-repeating trace for a given segment count.
 - **Random config rework (gyrograph)** — a "randomize" button (or startup mode) that fills all globals and segments with random values inside their generous ranges. Exact scope TBD.
 - **Non-circular rolling shapes** — explore curve families beyond the hypotrochoid/epitrochoid. Candidates: rolling polygons, ellipse-inside-circle, rosette curves, or a more general "rolling shape inside rolling shape" primitive. Substantial math rework — likely its own sub-experiment rather than a small tweak.
+- **Jittery outside edges investigation (gyrograph)** — at certain config combinations, the outside edges of the drawn curve show visible jitter. Repro URL: `/gyrograph/live?R=199&bg=0a0a0a&speed=1&trail=4750&arms=0&circles=0&hideLive=1&seg=60,i,80,7AB6DE,20,0.15,1` (single segment with `d > r`, so the pen extends beyond the outer ring). Candidates to investigate: floating-point accumulation in the wall-clock `tRef` over many cycles; aliasing where the pen moves slowest at the curve extremes; trail-buffer slice shifting (`buffersRef.current[k] = buf.slice(-cfg.trail)`) causing visible chunk-boundary seams as points age out; sub-pixel rounding on the auto-fit scaled transform. Decide on a fix once the root cause is identified.
 
 ## Todos
 
