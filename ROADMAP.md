@@ -78,6 +78,7 @@ Items identified but not scheduled to a specific phase yet.
 - **Live-mode options menu** — a UI overlay on `/:slug/live` with, at minimum: pause/unpause the animation, "back to edit" navigation (complementing the existing Escape shortcut with a discoverable button), and "save image" (download the current canvas as PNG). Supersedes the old "Animation pause/play toggle" backlog item.
 - **Non-circular rolling shapes** — explore curve families beyond the hypotrochoid/epitrochoid. Candidates: rolling polygons, ellipse-inside-circle, rosette curves, or a more general "rolling shape inside rolling shape" primitive. Substantial math rework — likely its own sub-experiment rather than a small tweak.
 - **Cycle-time readout (single-level)** — display the completion time (`T = 2π·r / gcd(R−r, r) / (3·speed)` seconds) of the current single-level config in the Controls panel. May be subsumed by the nested-chain phase (which will need its own cycle-time calculation for composed motions), or shipped as a small standalone polish item before then.
+- **Mechanism-in-fullscreen checkbox wording** — the current "Show mechanism in fullscreen" label is functional but awkward. Find better wording that makes the checked/unchecked meaning instantly clear.
 
 ## Todos
 

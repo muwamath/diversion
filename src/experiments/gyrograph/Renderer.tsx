@@ -2,6 +2,8 @@ import { useRef, useEffect } from 'react'
 import type { GyrographConfig } from './schema'
 import { drawCurves, drawOverlay, isMechanismVisible } from './draw'
 import { walkChain, type Frame } from './chain'
+import { RADIANS_PER_SECOND } from './cycleTime'
+import { computeResetRange } from './resetRange'
 
 function segmentGeoKey(seg: { r: number; side: string; d: number }) {
   return `${seg.r}-${seg.side}-${seg.d}`
@@ -33,6 +35,7 @@ export default function Renderer({
 
   useEffect(() => {
     const newKeys = config.segments.map(segmentGeoKey)
+    const rChanged = prevRRef.current !== config.R
 
     while (buffersRef.current.length < config.segments.length) {
       buffersRef.current.push([])
@@ -41,27 +44,16 @@ export default function Renderer({
       buffersRef.current = buffersRef.current.slice(0, config.segments.length)
     }
 
-    if (prevRRef.current !== config.R) {
+    const range = computeResetRange(prevKeysRef.current, newKeys, rChanged)
+    if (range === 'all') {
       buffersRef.current = config.segments.map(() => [])
-      prevRRef.current = config.R
-      prevKeysRef.current = newKeys
-      return
-    }
-
-    let firstChanged = -1
-    for (let i = 0; i < newKeys.length; i++) {
-      if (prevKeysRef.current[i] !== newKeys[i]) {
-        firstChanged = i
-        break
-      }
-    }
-
-    if (firstChanged !== -1) {
-      for (let i = firstChanged; i < buffersRef.current.length; i++) {
+    } else if (range !== 'none') {
+      for (let i = range.from; i < buffersRef.current.length; i++) {
         buffersRef.current[i] = []
       }
     }
 
+    prevRRef.current = config.R
     prevKeysRef.current = newKeys
   }, [config.R, segmentKeysJoined, config.segments.length])
 
@@ -71,11 +63,14 @@ export default function Renderer({
     const ctx = canvas.getContext('2d')!
 
     let raf: number
+    let lastTime = performance.now()
 
     function loop() {
       const cfg = configRef.current
-      const dt = 0.05 * cfg.speed
-      tRef.current += dt
+      const now = performance.now()
+      const dtSeconds = Math.min((now - lastTime) / 1000, 0.1)
+      lastTime = now
+      tRef.current += dtSeconds * RADIANS_PER_SECOND * cfg.speed
 
       const frames: Frame[] = walkChain(
         cfg.R,

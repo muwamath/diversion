@@ -4,6 +4,12 @@ interface CycleConfig {
   segments: Array<{ r: number; side: 'inside' | 'outside' }>
 }
 
+// Angular rate for speed=1. Used by both the renderer (to advance t in
+// wall-clock-driven rAF) and by cycleTimeSeconds (to convert t-space
+// periods to wall-clock seconds). Sharing this constant keeps the
+// cycle-time readout correct regardless of display refresh rate.
+export const RADIANS_PER_SECOND = 3
+
 const LCM_CEILING = 1_000_000_000
 
 function gcd(a: number, b: number): number {
@@ -37,7 +43,7 @@ export function cycleTimeSeconds(config: CycleConfig): number {
   }
 
   const speed = config.speed || 1
-  return (2 * Math.PI * composedPeriodUnits) / (3 * speed)
+  return (2 * Math.PI * composedPeriodUnits) / (RADIANS_PER_SECOND * speed)
 }
 
 export function formatCycleTime(seconds: number): string {
