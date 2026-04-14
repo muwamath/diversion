@@ -19,6 +19,24 @@ npm run build
 npm run preview  # serve the built artifact locally
 ```
 
+## Adding an experiment
+
+Each experiment lives in `src/experiments/<slug>/` and exports a single
+`Experiment` object. Create these files:
+
+```
+src/experiments/<slug>/
+  meta.ts        — slug, display name, description
+  schema.ts      — config type + parse/stringify for URL params
+  defaults.ts    — default config values
+  Controls.tsx   — form inputs for this experiment
+  Renderer.tsx   — canvas component (receives config + size)
+  draw.ts        — pure drawing function (all math here)
+  index.ts       — re-exports a single Experiment object
+```
+
+Then register it in `src/experiments/registry.ts`.
+
 ## Roadmap
 
 See [`ROADMAP.md`](./ROADMAP.md) for the active phase plan and short-term
