@@ -5,7 +5,7 @@ import { schema } from './schema'
 import Controls from './Controls'
 import Renderer from './Renderer'
 
-export const hypotrochoid: Experiment<HypotrochoidConfig> = {
+export const gyrograph: Experiment<HypotrochoidConfig> = {
   meta,
   schema,
   Controls,
