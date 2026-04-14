@@ -32,7 +32,7 @@ describe('AppRoutes URL matrix', () => {
   it('redirects / with query params to /gyrograph/edit preserving them', () => {
     renderAt('/?R=180')
     expect(screen.getByTestId('url').textContent).toBe('/gyrograph/edit?R=180')
-    expect(screen.getByRole('spinbutton', { name: /R \(outer\)/ })).toHaveValue(180)
+    expect(screen.getByRole('spinbutton', { name: /Outer ring/ })).toHaveValue(180)
   })
 
   it('redirects bare /gyrograph to /gyrograph/edit', () => {
@@ -43,13 +43,13 @@ describe('AppRoutes URL matrix', () => {
   it('redirects /gyrograph?R=180 to /gyrograph/edit?R=180', () => {
     renderAt('/gyrograph?R=180')
     expect(screen.getByTestId('url').textContent).toBe('/gyrograph/edit?R=180')
-    expect(screen.getByRole('spinbutton', { name: /R \(outer\)/ })).toHaveValue(180)
+    expect(screen.getByRole('spinbutton', { name: /Outer ring/ })).toHaveValue(180)
   })
 
   it('renders the editor at /gyrograph/edit?R=180', () => {
     renderAt('/gyrograph/edit?R=180')
     expect(screen.getByTestId('url').textContent).toBe('/gyrograph/edit?R=180')
-    expect(screen.getByRole('spinbutton', { name: /R \(outer\)/ })).toHaveValue(180)
+    expect(screen.getByRole('spinbutton', { name: /Outer ring/ })).toHaveValue(180)
     expect(screen.getByRole('link', { name: /Open fullscreen/ })).toBeInTheDocument()
   })
 

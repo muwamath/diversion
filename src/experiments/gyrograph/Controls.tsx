@@ -1,7 +1,7 @@
 import type { GyrographConfig, Segment } from './schema'
 
 const MAX_SEGMENTS = 6
-const SEGMENT_PALETTE = ['#aa3bff', '#ff6b6b', '#6bffaa', '#6bb8ff', '#ffaa3b', '#ff3bc4']
+const SEGMENT_PALETTE = ['#7AB6DE', '#ff6b6b', '#6bffaa', '#6bb8ff', '#ffaa3b', '#ff3bc4']
 
 function NumberInput({
   label,
@@ -146,7 +146,7 @@ function SegmentSection({
         </button>
       </div>
       <NumberInput
-        label="r (radius)"
+        label="Wheel size"
         value={segment.r}
         min={1}
         max={500}
@@ -163,24 +163,24 @@ function SegmentSection({
         onChange={(side) => onPatch({ side })}
       />
       <NumberInput
-        label="d (pen offset)"
+        label="Pen arm"
         value={segment.d}
         min={0}
         max={500}
         step={1}
         onChange={(d) => onPatch({ d })}
       />
-      <ColorPicker label="Stroke" value={segment.stroke} onChange={(stroke) => onPatch({ stroke })} />
+      <ColorPicker label="Color" value={segment.stroke} onChange={(stroke) => onPatch({ stroke })} />
       <NumberInput
         label="Line width"
         value={segment.width}
         min={0.5}
-        max={10}
-        step={0.1}
+        max={100}
+        step={0.5}
         onChange={(width) => onPatch({ width })}
       />
       <NumberInput
-        label="Alpha"
+        label="Opacity"
         value={segment.alpha}
         min={0.01}
         max={1}
@@ -236,7 +236,7 @@ export default function Controls({
       side: 'inside',
       d: Math.round(r / 2),
       stroke,
-      width: 2,
+      width: 20,
       alpha: 0.15,
       visible: true,
     }
@@ -247,17 +247,17 @@ export default function Controls({
     <div className="controls">
       <section className="controls-globals">
         <h3 className="controls-heading">Globals</h3>
-        <NumberInput label="R (outer)" value={config.R} min={20} max={500} step={1} onChange={(R) => onChange({ R })} />
-        <NumberInput label="Speed" value={config.speed} min={0.1} max={5} step={0.1} onChange={(speed) => onChange({ speed })} />
+        <NumberInput label="Outer ring" value={config.R} min={20} max={500} step={1} onChange={(R) => onChange({ R })} />
+        <NumberInput label="Speed" value={config.speed} min={0.001} max={5} step={0.001} onChange={(speed) => onChange({ speed })} />
         <NumberInput label="Trail" value={config.trail} min={0} max={20000} step={50} onChange={(trail) => onChange({ trail })} />
         <ColorPicker label="Background" value={config.bg} onChange={(bg) => onChange({ bg })} />
         <CheckboxInput label="Show arms" value={config.arms} onChange={(arms) => onChange({ arms })} />
         <CheckboxInput label="Show circles" value={config.circles} onChange={(circles) => onChange({ circles })} />
         {(config.arms || config.circles) && (
           <CheckboxInput
-            label="Show mechanism in fullscreen"
-            value={!config.hideLive}
-            onChange={(v) => onChange({ hideLive: !v })}
+            label="Hide mechanism in fullscreen"
+            value={config.hideLive}
+            onChange={(hideLive) => onChange({ hideLive })}
           />
         )}
       </section>
