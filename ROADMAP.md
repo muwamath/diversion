@@ -17,6 +17,10 @@ sharing, and a fullscreen screensaver mode. Establishes the per-experiment
 folder pattern that future experiments will follow.
 
 ### Phase 2.1 — Polish · *pending*
+- **Test infrastructure**: add Vitest + React Testing Library and seed
+  tests for schema parse/stringify round-trip, router redirect
+  behavior, and the Live-page Escape handler. Canvas rendering stays
+  under manual Chrome verification.
 - ~~Revisit the display/show page URL structure~~ *done 2026-04-14 — `/:slug/edit` and `/:slug/live`; slug convention now chosen for readability*
 - Number input UX refinements (constrained ranges, validation)
 - Animation pause/play toggle
