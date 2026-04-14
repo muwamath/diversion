@@ -15,15 +15,21 @@ function RootRedirect() {
   return <Navigate to={`/${defaultSlug}/edit${search}`} replace />
 }
 
+export function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<RootRedirect />} />
+      <Route path="/:slug" element={<BareSlugRedirect />} />
+      <Route path="/:slug/edit" element={<Edit />} />
+      <Route path="/:slug/live" element={<Live />} />
+    </Routes>
+  )
+}
+
 export function AppRouter() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <Routes>
-        <Route path="/" element={<RootRedirect />} />
-        <Route path="/:slug" element={<BareSlugRedirect />} />
-        <Route path="/:slug/edit" element={<Edit />} />
-        <Route path="/:slug/live" element={<Live />} />
-      </Routes>
+      <AppRoutes />
     </BrowserRouter>
   )
 }
