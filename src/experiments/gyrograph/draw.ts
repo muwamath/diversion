@@ -24,14 +24,18 @@ export function drawHypotrochoid(
   ctx.strokeStyle = config.stroke
   ctx.lineWidth = config.width
   ctx.lineJoin = 'round'
-  ctx.lineCap = 'round'
+  ctx.lineCap = 'butt'
 
-  ctx.beginPath()
-  ctx.moveTo(cx + points[0].x, cy + points[0].y)
-  for (let i = 1; i < points.length; i++) {
-    ctx.lineTo(cx + points[i].x, cy + points[i].y)
+  const CHUNK_SIZE = 20
+  for (let start = 0; start < points.length - 1; start += CHUNK_SIZE) {
+    ctx.beginPath()
+    ctx.moveTo(cx + points[start].x, cy + points[start].y)
+    const end = Math.min(start + CHUNK_SIZE, points.length - 1)
+    for (let i = start + 1; i <= end; i++) {
+      ctx.lineTo(cx + points[i].x, cy + points[i].y)
+    }
+    ctx.stroke()
   }
-  ctx.stroke()
   ctx.restore()
 }
 
