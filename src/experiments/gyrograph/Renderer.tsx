@@ -6,10 +6,12 @@ export default function Renderer({
   config,
   width,
   height,
+  mode = 'edit',
 }: {
   config: HypotrochoidConfig
   width: number
   height: number
+  mode?: 'edit' | 'live'
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const pointsRef = useRef<Array<{ x: number; y: number }>>([])
@@ -51,13 +53,20 @@ export default function Renderer({
         pointsRef.current = pointsRef.current.slice(-cfg.trail)
       }
 
-      drawHypotrochoid(ctx, cfg, pointsRef.current)
+      const visible = mode === 'edit' || !cfg.hideLive
+      const showArms = cfg.arms && visible
+      const showCircles = cfg.circles && visible
+      drawHypotrochoid(ctx, cfg, pointsRef.current, {
+        t: tRef.current,
+        showArms,
+        showCircles,
+      })
       raf = requestAnimationFrame(loop)
     }
 
     raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
-  }, [])
+  }, [mode])
 
   const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1
 

@@ -63,7 +63,7 @@ export default function Live() {
       className={`show-fullscreen ${cursorVisible ? 'cursor-visible' : ''}`}
     >
       {size.width > 0 && (
-        <Renderer config={config} width={size.width} height={size.height} />
+        <Renderer config={config} width={size.width} height={size.height} mode="live" />
       )}
     </div>
   )

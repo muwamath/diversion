@@ -41,7 +41,7 @@ function ExperimentPanel({
       </div>
       <div className="preview" ref={previewRef}>
         {size.width > 0 && (
-          <Renderer config={config} width={size.width} height={size.height} />
+          <Renderer config={config} width={size.width} height={size.height} mode="edit" />
         )}
       </div>
     </>

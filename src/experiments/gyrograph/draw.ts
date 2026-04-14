@@ -1,9 +1,16 @@
 import type { HypotrochoidConfig } from './schema'
 
+export interface DrawState {
+  t: number
+  showArms: boolean
+  showCircles: boolean
+}
+
 export function drawHypotrochoid(
   ctx: CanvasRenderingContext2D,
   config: HypotrochoidConfig,
   points: Array<{ x: number; y: number }>,
+  state: DrawState,
 ) {
   const { width: cw, height: ch } = ctx.canvas
   const dpr = window.devicePixelRatio || 1
@@ -35,6 +42,45 @@ export function drawHypotrochoid(
       ctx.lineTo(cx + points[i].x, cy + points[i].y)
     }
     ctx.stroke()
+  }
+  ctx.restore()
+
+  // Mechanism overlay (outer circle, rolling inner circle, pen arm)
+  if (!state.showArms && !state.showCircles) return
+
+  const diff = config.R - config.r
+  const rollX = diff * Math.cos(state.t)
+  const rollY = diff * Math.sin(state.t)
+  const penX = points[points.length - 1].x
+  const penY = points[points.length - 1].y
+
+  ctx.save()
+  ctx.scale(dpr, dpr)
+  ctx.globalAlpha = 1
+  ctx.strokeStyle = '#888888'
+  ctx.fillStyle = '#cccccc'
+  ctx.lineWidth = 1
+
+  if (state.showCircles) {
+    ctx.beginPath()
+    ctx.arc(cx, cy, config.R, 0, Math.PI * 2)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.arc(cx + rollX, cy + rollY, config.r, 0, Math.PI * 2)
+    ctx.stroke()
+  }
+
+  if (state.showArms) {
+    ctx.beginPath()
+    ctx.moveTo(cx + rollX, cy + rollY)
+    ctx.lineTo(cx + penX, cy + penY)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.arc(cx + rollX, cy + rollY, 3, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.beginPath()
+    ctx.arc(cx + penX, cy + penY, 3, 0, Math.PI * 2)
+    ctx.fill()
   }
   ctx.restore()
 }
