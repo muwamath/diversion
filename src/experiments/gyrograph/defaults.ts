@@ -10,4 +10,7 @@ export const defaults: HypotrochoidConfig = {
   width: 2,
   alpha: 0.15,
   bg: '#0a0a0a',
+  arms: false,
+  circles: false,
+  hideLive: true,
 }
