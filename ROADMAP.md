@@ -22,6 +22,7 @@ folder pattern that future experiments will follow.
 - Animation pause/play toggle
 - Gyrograph: configurable trail duration (how long the line lasts)
 - Gyrograph: configurable trail alpha (line opacity)
+- Gyrograph: curated "interesting patterns" presets, pinned at the top of the config panel
 
 ### Phase 3 — Catalog · *pending*
 Grow from one experiment to several, with a landing page that lists them and
