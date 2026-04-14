@@ -25,32 +25,41 @@ clean URL surface and a real regression net underneath it.
 ### Phase 2.2 — Gyrograph feature expansion · *pending*
 Build on the foundation. Turn Gyrograph from a single-pen hypotrochoid
 into a richer visual playground — more expressive configuration, more
-to see on screen, more to play with. Items ordered simplest first.
+to see on screen, more to play with. Items ordered by current priority.
 
 1. ~~**Configurable trail alpha**~~ *done 2026-04-14 — `alpha` field, range 0.01–1.0, default 0.15. Also bumped `width` default from 1.5 to 2.*
-2. **Curated "interesting patterns" presets** — a row of preset
+2. **Configurable trail duration** — how long the line lasts before
+   it fades or truncates (current `trail` is a segment count; this
+   item gives it meaningful semantics). Flagged as the next piece of
+   work, expected to be complicated — the trail semantics need to
+   interact well with the nested-chain buffers and variable speed.
+3. **Curated "interesting patterns" presets** — a row of preset
    buttons pinned above the config panel that set all knobs at once
    to visually striking combinations.
-3. **Configurable trail duration** — how long the line lasts before
-   it fades or truncates (current `trail` is a segment count; this
-   item gives it meaningful semantics).
 4. ~~**Visualize the arms and circles**~~ *done 2026-04-14 — optional
    mechanism overlay in the edit/live view: outer fixed circle,
    rolling inner circle, pen arm, endpoint dots. New `arms`,
    `circles`, `hideLive` config fields; conditional "Hide in
    fullscreen" checkbox in the controls panel. Completed out of
    order at the user's request — items 2 and 3 still pending.*
-5. **Curated "interesting patterns" presets** — a row of preset
-   buttons pinned above the config panel that set all knobs at once
-   to visually striking combinations.
-6. **Configurable trail duration** — how long the line lasts before
-   it fades or truncates (current `trail` is a segment count; this
-   item gives it meaningful semantics).
-7. **Oscillation for any field** — let a config field animate between
-   two values over a configurable period, so e.g. R can drift between
-   180 and 220, or d can oscillate to make the curve breathe. Applies
-   independently to each oscillation-capable field.
-8. ~~**Nested trochoid chain (replaces the earlier "multi-arm" item)**~~
+5. **Animation knobs (oscillation + per-segment speed)** — two
+   overlapping animation mechanisms, designed together so we don't
+   ship two competing systems:
+   - **Oscillation:** let a config field animate between two values
+     over a configurable period, so e.g. R can drift between 180 and
+     220, or d can oscillate to make the curve breathe. Applies
+     independently to each oscillation-capable field.
+   - **Per-segment speed multiplier:** each segment gets an
+     independent rate multiplier, breaking the rolling-without-slipping
+     constraint. Opens the design space to cycloid/Lissajous-like
+     shapes and polyrhythmic curves. Mechanism overlay will visibly
+     show slipping when multipliers ≠ 1 (intentional).
+   - **Open design questions:** which fields are oscillation-capable;
+     period scale and easing; whether per-segment speed multipliers
+     are restricted to rationals (so the composed-LCM cycle-time
+     readout stays honest) or allow free decimals (readout falls back
+     to `∞` for irrationals).
+6. ~~**Nested trochoid chain (replaces the earlier "multi-arm" item)**~~
    *done 2026-04-14 — chain of up to 6 rolling segments, each
    rolling inside/outside its parent, each with its own pen, all
    driven by one linked mechanism. Globals: R, bg, speed, trail,
@@ -72,13 +81,16 @@ basic navigation between them.
 
 Items identified but not scheduled to a specific phase yet.
 
-- Number input UX refinements (constrained ranges, validation) — cross-cutting, applies to any experiment
 - Playwright E2E smoke tests (SPA 404 redirect coverage; deferred from Phase 2.1)
-- **Maximize screen usage for the canvas/design** — find a way to have the rendered design take up as much of the viewport as possible, in both edit and live modes. Open question: collapsible sidebar in edit, larger automatic curve scaling, or both.
-- **Live-mode options menu** — a UI overlay on `/:slug/live` with, at minimum: pause/unpause the animation, "back to edit" navigation (complementing the existing Escape shortcut with a discoverable button), and "save image" (download the current canvas as PNG). Supersedes the old "Animation pause/play toggle" backlog item.
+- **Sidebar collapse for canvas headroom** — the polish batch shipped auto-fit canvas scaling with a responsive margin, so the curve already fills most of the edit-mode preview pane. Remaining open question: should the edit sidebar be collapsible so the canvas can grow into its space when the user wants to just stare at the curve? Not urgent now that the auto-fit exists.
+- **Edit-mode playback controls (replaces live URL)** — rework the gyrograph edit UI to add playback controls, and drop the `/:slug/live` fullscreen route entirely (folding its "screensaver" intent into edit mode):
+  - **Play/pause button** — pauses the animation. When paused, force-show arms and circles (regardless of the Show arms/Show circles toggles) so the mechanism is visible while tweaking config.
+  - **Step forward / step back** — while paused, nudge the animation one small t-unit at a time to land on a specific frame.
+  - **Reset orientation** — snap all segments so their arms "point right" (t=0 alignment) so wheel sizes and pen arms are obvious at a glance.
+  - Supersedes the earlier "Live-mode options menu" backlog item, which assumed the live route would stick around.
+- **Longest-cycle saved preset** — a computed gyrograph preset that maximizes the composed-LCM cycle-time readout across all segments. Would serve as a "fun" saved session demonstrating the longest possible non-repeating trace for a given segment count.
+- **Random config rework (gyrograph)** — a "randomize" button (or startup mode) that fills all globals and segments with random values inside their generous ranges. Exact scope TBD.
 - **Non-circular rolling shapes** — explore curve families beyond the hypotrochoid/epitrochoid. Candidates: rolling polygons, ellipse-inside-circle, rosette curves, or a more general "rolling shape inside rolling shape" primitive. Substantial math rework — likely its own sub-experiment rather than a small tweak.
-- **Cycle-time readout (single-level)** — display the completion time (`T = 2π·r / gcd(R−r, r) / (3·speed)` seconds) of the current single-level config in the Controls panel. May be subsumed by the nested-chain phase (which will need its own cycle-time calculation for composed motions), or shipped as a small standalone polish item before then.
-- **Mechanism-in-fullscreen checkbox wording** — the current "Show mechanism in fullscreen" label is functional but awkward. Find better wording that makes the checked/unchecked meaning instantly clear.
 
 ## Todos
 
