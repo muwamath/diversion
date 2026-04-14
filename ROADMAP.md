@@ -27,8 +27,7 @@ Build on the foundation. Turn Gyrograph from a single-pen hypotrochoid
 into a richer visual playground — more expressive configuration, more
 to see on screen, more to play with. Items ordered simplest first.
 
-1. **Configurable trail alpha** — line opacity, so trails blend
-   instead of overdrawing on long runs.
+1. ~~**Configurable trail alpha**~~ *done 2026-04-14 — `alpha` field, range 0.01–1.0, default 0.15. Also bumped `width` default from 1.5 to 2.*
 2. **Curated "interesting patterns" presets** — a row of preset
    buttons pinned above the config panel that set all knobs at once
    to visually striking combinations.

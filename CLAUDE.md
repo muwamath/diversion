@@ -23,7 +23,8 @@ Stack: Vite + React 19 + TypeScript. No styling library — plain CSS.
 ## Current experiments
 
 - **Gyrograph** (`gyrograph`) — hypotrochoid curve drawer with
-  configurable radii, pen offset, speed, trail length, and colors.
+  configurable radii, pen offset, speed, trail length, line width,
+  line opacity (alpha), and colors.
 
 ## Conventions
 
