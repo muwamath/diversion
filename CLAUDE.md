@@ -26,7 +26,8 @@ Stack: Vite + React 19 + TypeScript. No styling library — plain CSS.
   outer circle `R` plus a chain of up to 6 rolling segments, each
   rolling inside or outside its parent. Every segment has its own pen,
   so N segments produce N curves from one linked mechanism. Globals:
-  `R`, `bg`, `speed`, `trail`, and mechanism-overlay toggles (`arms`,
+  `R`, `bg`, `speed`, `trail`, `autoTrail`, `preDrawCycle`,
+  `maxHistorySeconds`, and mechanism-overlay toggles (`arms`,
   `circles`, `hideLive`). Per-segment: `r`, `side` (inside/outside),
   `d` (pen offset), `stroke`, `width`, `alpha`, `visible`. UI labels
   are human-readable ("Outer ring", "Wheel size", "Pen arm", "Color",
@@ -35,8 +36,11 @@ Stack: Vite + React 19 + TypeScript. No styling library — plain CSS.
   readout + experiment list, scrolling-middle globals and per-segment
   sections with add / remove / up-down reorder, pinned-bottom share
   bar. The pure math lives in `chain.ts` (`walkChain`), `cycleTime.ts`
-  (composed LCM readout), and `extent.ts` (sampling-based max pen
-  distance used by the canvas auto-fit). The renderer scales the
+  (composed LCM readout), `extent.ts` (sampling-based max pen
+  distance used by the canvas auto-fit), `effectiveTrail.ts`
+  (buffer-cap computation: cycle-derived in auto mode, user value in
+  manual mode), and `preDrawCycle.ts` (pre-runs one full cycle to
+  populate buffers when `preDrawCycle` is on). The renderer scales the
   whole scene so the drawn curve fills most of the preview with a
   responsive margin (1–4% depending on viewport size). URL schema:
   globals as individual params, segments packed into one

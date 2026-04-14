@@ -28,11 +28,18 @@ into a richer visual playground — more expressive configuration, more
 to see on screen, more to play with. Items ordered by current priority.
 
 1. ~~**Configurable trail alpha**~~ *done 2026-04-14 — `alpha` field, range 0.01–1.0, default 0.15. Also bumped `width` default from 1.5 to 2.*
-2. **Configurable trail duration** — how long the line lasts before
-   it fades or truncates (current `trail` is a segment count; this
-   item gives it meaningful semantics). Flagged as the next piece of
-   work, expected to be complicated — the trail semantics need to
-   interact well with the nested-chain buffers and variable speed.
+2. ~~**Configurable trail duration**~~ *done 2026-04-14 — trail
+   semantics unchanged at the buffer level (still per-segment FIFO,
+   one point per rAF frame, no fade), but the effective cap is now
+   cycle-derived by default. New global fields: `autoTrail` (default
+   `true`), `preDrawCycle` (default `false`), `maxHistorySeconds`
+   (default 180). When `autoTrail` is true, effective trail equals
+   one composed cycle's worth of frames at the reference 60fps rate,
+   capped at `maxHistorySeconds * 60`. When `preDrawCycle` is true,
+   the renderer pre-runs one full cycle at mount/config-change time
+   and pre-fills the segment buffers so the "chasing itself" state
+   is visible immediately. New helpers: `effectiveTrail.ts`
+   (`computeEffectiveTrail`) and `preDrawCycle.ts` (`preDrawBuffers`).*
 3. **Curated "interesting patterns" presets** — a row of preset
    buttons pinned above the config panel that set all knobs at once
    to visually striking combinations.
