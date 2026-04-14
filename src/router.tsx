@@ -1,16 +1,18 @@
-import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom'
 import Edit from './pages/Edit'
 import Live from './pages/Live'
 import { experiments } from './experiments/registry'
 
 function BareSlugRedirect() {
   const { slug } = useParams()
-  return <Navigate to={`/${slug}/edit`} replace />
+  const { search } = useLocation()
+  return <Navigate to={`/${slug}/edit${search}`} replace />
 }
 
 function RootRedirect() {
   const defaultSlug = experiments[0]?.meta.slug ?? ''
-  return <Navigate to={`/${defaultSlug}/edit`} replace />
+  const { search } = useLocation()
+  return <Navigate to={`/${defaultSlug}/edit${search}`} replace />
 }
 
 export function AppRouter() {
