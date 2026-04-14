@@ -5,6 +5,8 @@ import { walkChain, type Frame } from './chain'
 import { RADIANS_PER_SECOND } from './cycleTime'
 import { computeResetRange } from './resetRange'
 import { maxPenExtent } from './extent'
+import { computeEffectiveTrail } from './effectiveTrail'
+import { preDrawBuffers } from './preDrawCycle'
 
 function segmentGeoKey(seg: { r: number; side: string; d: number }) {
   return `${seg.r}-${seg.side}-${seg.d}`
@@ -56,9 +58,24 @@ export default function Renderer({
       }
     }
 
+    const preDraw = preDrawBuffers(config)
+    if (preDraw) {
+      buffersRef.current = preDraw.buffers
+      tRef.current = preDraw.tEnd
+    }
+
     prevRRef.current = config.R
     prevKeysRef.current = newKeys
-  }, [config.R, segmentKeysJoined, config.segments.length])
+  }, [
+    config.R,
+    segmentKeysJoined,
+    config.segments.length,
+    config.autoTrail,
+    config.preDrawCycle,
+    config.maxHistorySeconds,
+    config.speed,
+    config.trail,
+  ])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -85,12 +102,13 @@ export default function Renderer({
         buffersRef.current.push([])
       }
 
+      const cap = computeEffectiveTrail(cfg)
       for (let k = 0; k < frames.length; k++) {
         const buf = buffersRef.current[k]
         if (!buf) continue
         buf.push({ x: frames[k].penX, y: frames[k].penY })
-        if (cfg.trail > 0 && buf.length > cfg.trail) {
-          buffersRef.current[k] = buf.slice(-cfg.trail)
+        if (cap > 0 && buf.length > cap) {
+          buffersRef.current[k] = buf.slice(-cap)
         }
       }
 
