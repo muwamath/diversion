@@ -8,6 +8,7 @@ export interface HypotrochoidConfig {
   trail: number
   stroke: string
   width: number
+  alpha: number
   bg: string
 }
 
@@ -34,6 +35,7 @@ export const schema = {
       trail: num(params, 'trail', defaults.trail),
       stroke: str(params, 'stroke', defaults.stroke),
       width: num(params, 'width', defaults.width),
+      alpha: Math.min(1, Math.max(0.01, num(params, 'alpha', defaults.alpha))),
       bg: str(params, 'bg', defaults.bg),
     }
   },
@@ -47,6 +49,7 @@ export const schema = {
     p.set('trail', String(config.trail))
     p.set('stroke', config.stroke)
     p.set('width', String(config.width))
+    p.set('alpha', String(config.alpha))
     p.set('bg', config.bg)
     return p
   },
