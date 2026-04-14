@@ -4,6 +4,7 @@ import { drawCurves, drawOverlay, isMechanismVisible } from './draw'
 import { walkChain, type Frame } from './chain'
 import { RADIANS_PER_SECOND } from './cycleTime'
 import { computeResetRange } from './resetRange'
+import { maxPenExtent } from './extent'
 
 function segmentGeoKey(seg: { r: number; side: string; d: number }) {
   return `${seg.r}-${seg.side}-${seg.d}`
@@ -24,11 +25,13 @@ export default function Renderer({
   const buffersRef = useRef<Array<Array<{ x: number; y: number }>>>([])
   const tRef = useRef(0)
   const configRef = useRef(config)
+  const extentRef = useRef(maxPenExtent(config))
   const prevRRef = useRef(config.R)
   const prevKeysRef = useRef<string[]>([])
 
   useEffect(() => {
     configRef.current = config
+    extentRef.current = maxPenExtent(config)
   }, [config])
 
   const segmentKeysJoined = config.segments.map(segmentGeoKey).join('|')
@@ -91,13 +94,20 @@ export default function Renderer({
         }
       }
 
-      drawCurves(ctx, cfg, buffersRef.current)
+      const extent = extentRef.current
+      drawCurves(ctx, cfg, buffersRef.current, extent)
 
       const visible = isMechanismVisible(mode, cfg.hideLive)
-      drawOverlay(ctx, cfg, frames, {
-        showArms: cfg.arms && visible,
-        showCircles: cfg.circles && visible,
-      })
+      drawOverlay(
+        ctx,
+        cfg,
+        frames,
+        {
+          showArms: cfg.arms && visible,
+          showCircles: cfg.circles && visible,
+        },
+        extent,
+      )
 
       raf = requestAnimationFrame(loop)
     }
