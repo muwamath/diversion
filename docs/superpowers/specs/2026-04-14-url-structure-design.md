@@ -24,9 +24,10 @@ mandated to be the math name.
 | `/:slug/edit` or `/:slug/live` with unknown slug | Render `"Unknown experiment: <slug>"` (same as today's `Show.tsx`) |
 
 `<params>` are standard URL query params, unchanged from today's shape
-(`R`, `r`, `d`, `speed`, `trailLength`, `color`, …). The `?experiment=`
-query param used by the current editor goes away entirely — the slug
-lives in the path.
+(`R`, `r`, `d`, `speed`, `trail`, `stroke`, `width`, `bg`). The
+`?experiment=` query param used by the current editor goes away
+entirely — the slug lives in the path. The `useExperimentConfig` hook
+also stops re-writing `?experiment=…` on config changes.
 
 Redirects use React Router's `<Navigate replace>` so the browser back
 button is not polluted.
@@ -94,13 +95,17 @@ working.
 1. `/diversion/` loads the Gyrograph editor with default params in the
    URL.
 2. `/diversion/gyrograph` redirects to `/diversion/gyrograph/edit?…`.
-3. `/diversion/gyrograph/edit?R=5&r=3&…` shows the editor with the
-   params applied.
-4. `/diversion/gyrograph/live?R=5&r=3&…` shows the fullscreen view.
+3. `/diversion/gyrograph/edit?R=200&r=60&d=80&speed=1&trail=2000&stroke=%23aa3bff&width=1.5&bg=%230a0a0a`
+   shows the editor with the params applied.
+4. `/diversion/gyrograph/live?R=200&r=60&d=80&speed=1&trail=2000&stroke=%23aa3bff&width=1.5&bg=%230a0a0a`
+   shows the fullscreen view.
 5. Escape from the live view returns to the editor with the same params.
 6. The "Open fullscreen" button in the editor opens the matching
    `/gyrograph/live?…` URL in a new tab.
 7. The share-bar URL input reflects the current editor URL.
-8. No `hypotrochoid` strings remain in the repo outside git history.
+8. No `hypotrochoid` identifiers remain as experiment slugs, folder
+   names, or import names. The `HypotrochoidConfig` TypeScript type and
+   descriptive text that references "the hypotrochoid curve" stay —
+   those describe the underlying math, not the experiment slug.
 9. `npm run build` passes; the deployed gh-pages site serves all of the
    above correctly.
