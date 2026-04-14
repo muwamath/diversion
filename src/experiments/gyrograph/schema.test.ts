@@ -45,8 +45,34 @@ describe('gyrograph schema', () => {
       speed: 2.5,
       trail: 1500,
       width: 2,
+      alpha: 0.42,
     }
     const roundTripped = schema.parse(schema.stringify(custom))
     expect(roundTripped).toEqual(custom)
+  })
+
+  it('returns the default alpha when missing', () => {
+    const decoded = schema.parse(new URLSearchParams())
+    expect(decoded.alpha).toBe(defaults.alpha)
+  })
+
+  it('clamps alpha above 1 down to 1', () => {
+    const decoded = schema.parse(new URLSearchParams({ alpha: '5' }))
+    expect(decoded.alpha).toBe(1)
+  })
+
+  it('clamps alpha below 0.01 up to 0.01', () => {
+    const decoded = schema.parse(new URLSearchParams({ alpha: '0' }))
+    expect(decoded.alpha).toBe(0.01)
+  })
+
+  it('clamps negative alpha up to 0.01', () => {
+    const decoded = schema.parse(new URLSearchParams({ alpha: '-0.5' }))
+    expect(decoded.alpha).toBe(0.01)
+  })
+
+  it('falls through to default alpha for non-numeric input', () => {
+    const decoded = schema.parse(new URLSearchParams({ alpha: 'abc' }))
+    expect(decoded.alpha).toBe(defaults.alpha)
   })
 })
