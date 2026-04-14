@@ -1,6 +1,6 @@
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useMemo, useRef, useEffect, useState } from 'react'
-import { experiments, findExperiment } from '../experiments/registry'
+import { findExperiment } from '../experiments/registry'
 import { useExperimentConfig } from '../hooks/useExperimentConfig'
 import ExperimentList from '../components/ExperimentList'
 import ShareBar from '../components/ShareBar'
@@ -48,22 +48,18 @@ function ExperimentPanel({
   )
 }
 
-export default function Home() {
-  const [searchParams] = useSearchParams()
+export default function Edit() {
+  const { slug } = useParams()
   const navigate = useNavigate()
-  const slug = searchParams.get('experiment') ?? experiments[0]?.meta.slug ?? ''
-  const experiment = useMemo(() => findExperiment(slug), [slug])
+  const experiment = useMemo(() => findExperiment(slug ?? ''), [slug])
 
   if (!experiment) {
-    return <div className="home">No experiments registered.</div>
+    return <div className="home">Unknown experiment: {slug}</div>
   }
 
   const handleSelect = (exp: Experiment) => {
-    const params = new URLSearchParams()
-    params.set('experiment', exp.meta.slug)
-    const defaultParams = exp.schema.stringify(exp.schema.defaults)
-    defaultParams.forEach((v, k) => params.set(k, v))
-    navigate(`/?${params.toString()}`)
+    const params = exp.schema.stringify(exp.schema.defaults)
+    navigate(`/${exp.meta.slug}/edit?${params.toString()}`)
   }
 
   return (

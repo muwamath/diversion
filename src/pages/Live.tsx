@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { findExperiment } from '../experiments/registry'
 import '../styles/layout.css'
 
-export default function Show() {
+export default function Live() {
   const { slug } = useParams()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -43,9 +43,7 @@ export default function Show() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        const params = new URLSearchParams(searchParams)
-        params.set('experiment', slug ?? '')
-        navigate(`/?${params.toString()}`)
+        navigate(`/${slug ?? ''}/edit?${searchParams.toString()}`)
       }
     }
     window.addEventListener('keydown', onKey)

@@ -14,8 +14,6 @@ export function useExperimentConfig<T>(experiment: Experiment<T>) {
     (patch: Partial<T>) => {
       const next = { ...config, ...patch }
       const params = experiment.schema.stringify(next)
-      // Preserve the experiment selector param
-      params.set('experiment', experiment.meta.slug)
       setSearchParams(params, { replace: true })
     },
     [config, experiment, setSearchParams],

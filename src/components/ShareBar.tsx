@@ -14,7 +14,7 @@ export default function ShareBar({ slug }: { slug: string }) {
     }
   }, [url])
 
-  const fullscreenUrl = `${window.location.origin}${import.meta.env.BASE_URL}show/${slug}?${searchParams.toString()}`
+  const fullscreenUrl = `${window.location.origin}${import.meta.env.BASE_URL}${slug}/live?${searchParams.toString()}`
 
   return (
     <div className="share-bar">
