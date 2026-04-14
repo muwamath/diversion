@@ -31,13 +31,21 @@ function ExperimentPanel({
 
   const Controls = experiment.Controls
   const Renderer = experiment.Renderer
+  const TopBar = experiment.TopBar
 
   return (
     <>
       <div className="sidebar">
-        <ExperimentList current={experiment.meta.slug} onSelect={onSelect} />
-        <Controls config={config} onChange={updateConfig} />
-        <ShareBar slug={experiment.meta.slug} />
+        <div className="sidebar-top">
+          <ExperimentList current={experiment.meta.slug} onSelect={onSelect} />
+          {TopBar && <TopBar config={config} />}
+        </div>
+        <div className="sidebar-middle">
+          <Controls config={config} onChange={updateConfig} />
+        </div>
+        <div className="sidebar-bottom">
+          <ShareBar slug={experiment.meta.slug} />
+        </div>
       </div>
       <div className="preview" ref={previewRef}>
         {size.width > 0 && (

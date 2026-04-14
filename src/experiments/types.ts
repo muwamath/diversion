@@ -22,4 +22,5 @@ export interface Experiment<T = Record<string, unknown>> {
     height: number
     mode?: 'edit' | 'live'
   }>
+  TopBar?: ComponentType<{ config: T }>
 }

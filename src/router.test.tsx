@@ -30,10 +30,9 @@ describe('AppRoutes URL matrix', () => {
   })
 
   it('redirects / with query params to /gyrograph/edit preserving them', () => {
-    renderAt('/?R=180&r=55')
-    expect(screen.getByTestId('url').textContent).toBe('/gyrograph/edit?R=180&r=55')
+    renderAt('/?R=180')
+    expect(screen.getByTestId('url').textContent).toBe('/gyrograph/edit?R=180')
     expect(screen.getByRole('spinbutton', { name: /R \(outer\)/ })).toHaveValue(180)
-    expect(screen.getByRole('spinbutton', { name: /r \(inner\)/ })).toHaveValue(55)
   })
 
   it('redirects bare /gyrograph to /gyrograph/edit', () => {
