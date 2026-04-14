@@ -1,4 +1,5 @@
 import type { GyrographConfig, Segment } from './schema'
+import { computeEffectiveTrail } from './effectiveTrail'
 
 const MAX_SEGMENTS = 6
 const SEGMENT_PALETTE = ['#7AB6DE', '#ff6b6b', '#6bffaa', '#6bb8ff', '#ffaa3b', '#ff3bc4']
@@ -10,6 +11,7 @@ function NumberInput({
   max,
   step,
   onChange,
+  disabled = false,
 }: {
   label: string
   value: number
@@ -17,6 +19,7 @@ function NumberInput({
   max: number
   step: number
   onChange: (v: number) => void
+  disabled?: boolean
 }) {
   return (
     <div className="control-row">
@@ -28,6 +31,7 @@ function NumberInput({
           max={max}
           step={step}
           value={value}
+          disabled={disabled}
           onChange={(e) => {
             const n = Number(e.target.value)
             if (Number.isFinite(n)) onChange(n)
@@ -249,7 +253,40 @@ export default function Controls({
         <h3 className="controls-heading">Globals</h3>
         <NumberInput label="Outer ring" value={config.R} min={20} max={500} step={1} onChange={(R) => onChange({ R })} />
         <NumberInput label="Speed" value={config.speed} min={0.001} max={5} step={0.001} onChange={(speed) => onChange({ speed })} />
-        <NumberInput label="Trail" value={config.trail} min={0} max={20000} step={50} onChange={(trail) => onChange({ trail })} />
+        <NumberInput
+          label="Max history (sec)"
+          value={config.maxHistorySeconds}
+          min={1}
+          max={1800}
+          step={1}
+          onChange={(maxHistorySeconds) => onChange({ maxHistorySeconds })}
+        />
+        <CheckboxInput
+          label="Auto-size trail to cycle"
+          value={config.autoTrail}
+          onChange={(next) => {
+            if (next) {
+              onChange({ autoTrail: true })
+            } else {
+              const effective = computeEffectiveTrail(config)
+              onChange({ autoTrail: false, trail: effective })
+            }
+          }}
+        />
+        <CheckboxInput
+          label="Pre-draw one cycle"
+          value={config.preDrawCycle}
+          onChange={(preDrawCycle) => onChange({ preDrawCycle })}
+        />
+        <NumberInput
+          label="Trail"
+          value={config.autoTrail ? computeEffectiveTrail(config) : config.trail}
+          min={0}
+          max={20000}
+          step={50}
+          onChange={(trail) => onChange({ trail })}
+          disabled={config.autoTrail}
+        />
         <ColorPicker label="Background" value={config.bg} onChange={(bg) => onChange({ bg })} />
         <CheckboxInput label="Show arms" value={config.arms} onChange={(arms) => onChange({ arms })} />
         <CheckboxInput label="Show circles" value={config.circles} onChange={(circles) => onChange({ circles })} />
