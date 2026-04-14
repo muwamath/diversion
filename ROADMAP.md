@@ -17,7 +17,7 @@ sharing, and a fullscreen screensaver mode. Establishes the per-experiment
 folder pattern that future experiments will follow.
 
 ### Phase 2.1 — Polish · *pending*
-- Revisit the display/show page URL structure (currently `/show/:slug`)
+- ~~Revisit the display/show page URL structure~~ *done 2026-04-14 — `/:slug/edit` and `/:slug/live`; slug convention now chosen for readability*
 - Number input UX refinements (constrained ranges, validation)
 - Animation pause/play toggle
 - Gyrograph: configurable trail duration (how long the line lasts)

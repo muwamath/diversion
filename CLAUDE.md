@@ -16,17 +16,20 @@ Stack: Vite + React 19 + TypeScript. No styling library — plain CSS.
   `src/experiments/types.ts`. Registry at `src/experiments/registry.ts`.
 - **State**: URL search params are the single source of truth for all
   config. No context, no store.
-- **Routes**: `/` (home — config + preview), `/show/:slug` (fullscreen).
+- **Routes**: `/:slug/edit` (config + live preview), `/:slug/live`
+  (fullscreen). `/` and bare `/:slug` redirect to the default
+  experiment's edit page.
 
 ## Current experiments
 
-- **Gyrograph** (`hypotrochoid`) — hypotrochoid curve drawer with
+- **Gyrograph** (`gyrograph`) — hypotrochoid curve drawer with
   configurable radii, pen offset, speed, trail length, and colors.
 
 ## Conventions
 
-- Slug in URL = math name (e.g. `hypotrochoid`). Display name can differ
-  (e.g. "Gyrograph").
+- Slug = URL/folder identifier, chosen for readability (e.g.
+  `gyrograph`). Display name is the proper-cased form (e.g.
+  "Gyrograph") and can differ.
 - Desktop-first. No responsive work yet.
 - Dark theme only (`color-scheme: dark`).
 - Git identity: `muwamath <muwamath@proton.me>` via `--local` config.
