@@ -34,18 +34,44 @@ to see on screen, more to play with. Items ordered simplest first.
 3. **Configurable trail duration** — how long the line lasts before
    it fades or truncates (current `trail` is a segment count; this
    item gives it meaningful semantics).
-4. **Visualize the arms and circles** — optionally render the outer
-   circle, the rolling inner circle, and the pen arm so the
-   mechanism is visible, not just the curve it traces. Toggle in the
-   config panel.
-5. **Oscillation for any field** — let a config field animate between
+4. ~~**Visualize the arms and circles**~~ *done 2026-04-14 — optional
+   mechanism overlay in the edit/live view: outer fixed circle,
+   rolling inner circle, pen arm, endpoint dots. New `arms`,
+   `circles`, `hideLive` config fields; conditional "Hide in
+   fullscreen" checkbox in the controls panel. Completed out of
+   order at the user's request — items 2 and 3 still pending.*
+5. **Curated "interesting patterns" presets** — a row of preset
+   buttons pinned above the config panel that set all knobs at once
+   to visually striking combinations.
+6. **Configurable trail duration** — how long the line lasts before
+   it fades or truncates (current `trail` is a segment count; this
+   item gives it meaningful semantics).
+7. **Oscillation for any field** — let a config field animate between
    two values over a configurable period, so e.g. R can drift between
    180 and 220, or d can oscillate to make the curve breathe. Applies
    independently to each oscillation-capable field.
-6. **Multi-arm gyrograph with per-arm config** — support an arbitrary
-   number of pens, each with its own independent config (R, r, d,
-   stroke, alpha, oscillation, etc.), all rendered into the same
-   canvas. Add/remove arms from the UI.
+8. **Nested trochoid chain (replaces the earlier "multi-arm" item)** —
+   generalize the single-level hypotrochoid into a chain of rolling
+   circles, each rolling inside OR outside its parent. Each level
+   ("segment") has its own pen, so N segments produce N independent
+   curves from one linked mechanism. Also a major UI restructure:
+   break the sidebar into pinned top (cycle-time readout), scrolling
+   middle (globals + per-segment sections), and pinned bottom (share
+   bar). Add/remove segments from the UI. Add "show mechanism in
+   live" toggle.
+   - **Global config**: R (outermost fixed radius), bg, speed, show
+     arms, show circles, show mechanism in live.
+   - **Per-segment config**: r, side (`inside` | `outside`), d (pen
+     offset), stroke, width, alpha, visible (whether this segment's
+     pen draws).
+   - Replaces the previous "multi-arm parallel independent pens"
+     direction. The nested model is simultaneously simpler (one
+     mechanism chain instead of N parallel ones) and more powerful
+     (reaches curves unreachable by a single-level trochoid).
+   - Still to decide when this item kicks off: max segment depth,
+     URL encoding scheme for the nested structure, cycle-time
+     calculation for the composed system, backward compatibility
+     with current flat URLs.
 
 ### Phase 3 — Catalog · *pending*
 Grow from one experiment to several, with a landing page that lists them and
@@ -56,8 +82,11 @@ basic navigation between them.
 Items identified but not scheduled to a specific phase yet.
 
 - Number input UX refinements (constrained ranges, validation) — cross-cutting, applies to any experiment
-- Animation pause/play toggle — cross-cutting fullscreen-mode concern
 - Playwright E2E smoke tests (SPA 404 redirect coverage; deferred from Phase 2.1)
+- **Maximize screen usage for the canvas/design** — find a way to have the rendered design take up as much of the viewport as possible, in both edit and live modes. Open question: collapsible sidebar in edit, larger automatic curve scaling, or both.
+- **Live-mode options menu** — a UI overlay on `/:slug/live` with, at minimum: pause/unpause the animation, "back to edit" navigation (complementing the existing Escape shortcut with a discoverable button), and "save image" (download the current canvas as PNG). Supersedes the old "Animation pause/play toggle" backlog item.
+- **Non-circular rolling shapes** — explore curve families beyond the hypotrochoid/epitrochoid. Candidates: rolling polygons, ellipse-inside-circle, rosette curves, or a more general "rolling shape inside rolling shape" primitive. Substantial math rework — likely its own sub-experiment rather than a small tweak.
+- **Cycle-time readout (single-level)** — display the completion time (`T = 2π·r / gcd(R−r, r) / (3·speed)` seconds) of the current single-level config in the Controls panel. May be subsumed by the nested-chain phase (which will need its own cycle-time calculation for composed motions), or shipped as a small standalone polish item before then.
 
 ## Todos
 
