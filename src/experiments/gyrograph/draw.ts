@@ -34,13 +34,19 @@ function computeScale(
 export function drawCurves(
   ctx: CanvasRenderingContext2D,
   config: GyrographConfig,
-  buffers: Array<Array<{ x: number; y: number }>>,
+  polylines: Array<Array<{ x: number; y: number }>>,
+  cycleT: number,
+  startT: number,
+  endT: number,
   extent: number,
 ) {
   const { width: cw, height: ch } = ctx.canvas
   const dpr = window.devicePixelRatio || 1
   ctx.fillStyle = config.bg
   ctx.fillRect(0, 0, cw, ch)
+
+  if (!(cycleT > 0) || endT <= startT) return
+  const span = endT - startT
 
   const cwCss = cw / dpr
   const chCss = ch / dpr
@@ -56,22 +62,30 @@ export function drawCurves(
   for (let k = 0; k < config.segments.length; k++) {
     const seg = config.segments[k]
     if (!seg.visible) continue
-    const points = buffers[k]
-    if (!points || points.length < 2) continue
+    const poly = polylines[k]
+    if (!poly || poly.length < 2) continue
+    const N = poly.length
 
     ctx.globalAlpha = seg.alpha
     ctx.strokeStyle = seg.stroke
     ctx.lineWidth = seg.width / scale
 
-    for (let start = 0; start < points.length - 1; start += CHUNK_SIZE) {
-      ctx.beginPath()
-      ctx.moveTo(points[start].x, points[start].y)
-      const end = Math.min(start + CHUNK_SIZE, points.length - 1)
-      for (let i = start + 1; i <= end; i++) {
-        ctx.lineTo(points[i].x, points[i].y)
+    const startFrac = ((startT % cycleT) + cycleT) % cycleT
+    const startIdx = Math.floor((startFrac / cycleT) * N) % N
+    const totalSlices = Math.max(1, Math.round((span / cycleT) * N))
+
+    ctx.beginPath()
+    ctx.moveTo(poly[startIdx].x, poly[startIdx].y)
+    for (let i = 1; i <= totalSlices; i++) {
+      const idx = (startIdx + i) % N
+      ctx.lineTo(poly[idx].x, poly[idx].y)
+      if (i % CHUNK_SIZE === 0) {
+        ctx.stroke()
+        ctx.beginPath()
+        ctx.moveTo(poly[idx].x, poly[idx].y)
       }
-      ctx.stroke()
     }
+    ctx.stroke()
   }
 
   ctx.restore()

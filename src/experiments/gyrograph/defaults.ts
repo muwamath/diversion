@@ -4,7 +4,7 @@ export const defaults: GyrographConfig = {
   R: 199,
   bg: '#0a0a0a',
   speed: 1,
-  trail: 4600,
+  trail: 1,
   autoTrail: true,
   preDrawCycle: false,
   maxHistorySeconds: 180,

@@ -1,16 +1,4 @@
-import { useState, useEffect } from 'react'
 import type { GyrographConfig, Segment } from './schema'
-import { computeEffectiveTrail } from './effectiveTrail'
-import { getMeasuredFps, subscribeFps } from './fpsMeter'
-
-function useMeasuredFps(): number {
-  const [fps, setFps] = useState(() => getMeasuredFps())
-  useEffect(() => {
-    const unsub = subscribeFps((next) => setFps(next))
-    return unsub
-  }, [])
-  return fps
-}
 
 const MAX_SEGMENTS = 6
 const SEGMENT_PALETTE = ['#7AB6DE', '#ff6b6b', '#6bffaa', '#6bb8ff', '#ffaa3b', '#ff3bc4']
@@ -218,8 +206,6 @@ export default function Controls({
   config: GyrographConfig
   onChange: (patch: Partial<GyrographConfig>) => void
 }) {
-  const fps = useMeasuredFps()
-
   const patchSegment = (index: number, patch: Partial<Segment>) => {
     const segments = config.segments.map((s, i) => (i === index ? { ...s, ...patch } : s))
     onChange({ segments })
@@ -277,14 +263,7 @@ export default function Controls({
         <CheckboxInput
           label="Auto-size trail to cycle"
           value={config.autoTrail}
-          onChange={(next) => {
-            if (next) {
-              onChange({ autoTrail: true })
-            } else {
-              const effective = computeEffectiveTrail(config, fps)
-              onChange({ autoTrail: false, trail: effective })
-            }
-          }}
+          onChange={(autoTrail) => onChange({ autoTrail })}
         />
         <CheckboxInput
           label="Pre-draw one cycle"
@@ -292,11 +271,11 @@ export default function Controls({
           onChange={(preDrawCycle) => onChange({ preDrawCycle })}
         />
         <NumberInput
-          label="Trail"
-          value={config.autoTrail ? computeEffectiveTrail(config, fps) : config.trail}
+          label="Trail (cycles)"
+          value={config.autoTrail ? 1 : config.trail}
           min={0}
-          max={20000}
-          step={50}
+          max={10}
+          step={0.1}
           onChange={(trail) => onChange({ trail })}
           disabled={config.autoTrail}
         />

@@ -19,7 +19,7 @@ describe('gyrograph schema', () => {
       R: 220,
       bg: '#101018',
       speed: 1.5,
-      trail: 1500,
+      trail: 0.5,
       autoTrail: false,
       preDrawCycle: true,
       maxHistorySeconds: 240,

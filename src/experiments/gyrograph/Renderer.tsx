@@ -3,15 +3,9 @@ import type { GyrographConfig } from './schema'
 import { drawCurves, drawOverlay, isMechanismVisible } from './draw'
 import { walkChain, type Frame } from './chain'
 import { RADIANS_PER_SECOND } from './cycleTime'
-import { computeResetRange } from './resetRange'
 import { maxPenExtent } from './extent'
-import { computeCycleTWindow } from './effectiveTrail'
-import { preDrawBuffers } from './preDrawCycle'
-import { ensureMeasurement, getMeasuredFps } from './fpsMeter'
-
-function segmentGeoKey(seg: { r: number; side: string; d: number }) {
-  return `${seg.r}-${seg.side}-${seg.d}`
-}
+import { buildCycleBuffer, type CycleBuffer } from './cycleBuffer'
+import { computeTWindow } from './effectiveTrail'
 
 export default function Renderer({
   config,
@@ -25,12 +19,10 @@ export default function Renderer({
   mode?: 'edit' | 'live'
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const buffersRef = useRef<Array<Array<{ x: number; y: number; t: number }>>>([])
+  const cycleBufferRef = useRef<CycleBuffer>(buildCycleBuffer(config))
   const tRef = useRef(0)
   const configRef = useRef(config)
   const extentRef = useRef(maxPenExtent(config))
-  const prevRRef = useRef(config.R)
-  const prevKeysRef = useRef<string[]>([])
 
   useEffect(() => {
     configRef.current = config
@@ -38,58 +30,27 @@ export default function Renderer({
   }, [config])
 
   useEffect(() => {
-    ensureMeasurement()
-  }, [])
+    const cb = buildCycleBuffer(config)
+    cycleBufferRef.current = cb
+    tRef.current = config.preDrawCycle ? computeTWindow(config, cb.cycleT) : 0
 
-  const segmentKeysJoined = config.segments.map(segmentGeoKey).join('|')
-
-  useEffect(() => {
-    const newKeys = config.segments.map(segmentGeoKey)
-    const rChanged = prevRRef.current !== config.R
-
-    while (buffersRef.current.length < config.segments.length) {
-      buffersRef.current.push([])
-    }
-    if (buffersRef.current.length > config.segments.length) {
-      buffersRef.current = buffersRef.current.slice(0, config.segments.length)
-    }
-
-    const range = computeResetRange(prevKeysRef.current, newKeys, rChanged)
-    if (range === 'all') {
-      buffersRef.current = config.segments.map(() => [])
-    } else if (range !== 'none') {
-      for (let i = range.from; i < buffersRef.current.length; i++) {
-        buffersRef.current[i] = []
+    const canvas = canvasRef.current
+    if (canvas) {
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.fillStyle = config.bg
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
       }
     }
-
-    const preDraw = preDrawBuffers(config, getMeasuredFps())
-    if (preDraw) {
-      buffersRef.current = preDraw.buffers
-      tRef.current = preDraw.tEnd
-      // Force immediate clear so the previous frame's curve doesn't briefly
-      // bleed through while the loop gets to its next draw tick.
-      const canvas = canvasRef.current
-      if (canvas) {
-        const ctx = canvas.getContext('2d')
-        if (ctx) {
-          ctx.fillStyle = config.bg
-          ctx.fillRect(0, 0, canvas.width, canvas.height)
-        }
-      }
-    }
-
-    prevRRef.current = config.R
-    prevKeysRef.current = newKeys
   }, [
     config.R,
-    segmentKeysJoined,
+    config.segments.map((s) => `${s.r}-${s.side}-${s.d}`).join('|'),
     config.segments.length,
-    config.autoTrail,
-    config.preDrawCycle,
-    config.maxHistorySeconds,
     config.speed,
+    config.maxHistorySeconds,
+    config.autoTrail,
     config.trail,
+    config.preDrawCycle,
   ])
 
   useEffect(() => {
@@ -102,48 +63,25 @@ export default function Renderer({
 
     function loop() {
       const cfg = configRef.current
+      const cb = cycleBufferRef.current
       const now = performance.now()
       const dtSeconds = Math.min((now - lastTime) / 1000, 0.1)
       lastTime = now
       tRef.current += dtSeconds * RADIANS_PER_SECOND * cfg.speed
 
+      const currentT = tRef.current
+      const tWindow = computeTWindow(cfg, cb.cycleT)
+      const startT = Math.max(0, currentT - tWindow)
+      const endT = currentT
+
+      const extent = extentRef.current
+      drawCurves(ctx, cfg, cb.polylines, cb.cycleT, startT, endT, extent)
+
       const frames: Frame[] = walkChain(
         cfg.R,
         cfg.segments.map((s) => ({ r: s.r, side: s.side, d: s.d })),
-        tRef.current,
+        currentT,
       )
-
-      while (buffersRef.current.length < cfg.segments.length) {
-        buffersRef.current.push([])
-      }
-
-      const currentT = tRef.current
-      if (cfg.autoTrail) {
-        const tWindow = computeCycleTWindow(cfg)
-        const cutoff = currentT - tWindow
-        for (let k = 0; k < frames.length; k++) {
-          const buf = buffersRef.current[k]
-          if (!buf) continue
-          buf.push({ x: frames[k].penX, y: frames[k].penY, t: currentT })
-          let dropIdx = 0
-          while (dropIdx < buf.length && buf[dropIdx].t < cutoff) dropIdx++
-          if (dropIdx > 0) buffersRef.current[k] = buf.slice(dropIdx)
-        }
-      } else {
-        const cap = Math.max(0, Math.round(cfg.trail))
-        for (let k = 0; k < frames.length; k++) {
-          const buf = buffersRef.current[k]
-          if (!buf) continue
-          buf.push({ x: frames[k].penX, y: frames[k].penY, t: currentT })
-          if (cap > 0 && buf.length > cap) {
-            buffersRef.current[k] = buf.slice(-cap)
-          }
-        }
-      }
-
-      const extent = extentRef.current
-      drawCurves(ctx, cfg, buffersRef.current, extent)
-
       const visible = isMechanismVisible(mode, cfg.hideLive)
       drawOverlay(
         ctx,

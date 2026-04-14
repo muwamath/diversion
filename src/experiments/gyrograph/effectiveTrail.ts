@@ -1,42 +1,17 @@
 import type { GyrographConfig } from './schema'
-import { cycleTimeSeconds, RADIANS_PER_SECOND } from './cycleTime'
 
-export const REFERENCE_FPS = 60
-
-export function computeEffectiveTrail(
+// Returns the visible trail window as a t-space value (radians). Callers
+// pass the current cycleT (from cycleBuffer.buildCycleBuffer) so this
+// function is pure and speed/display-rate independent.
+//
+// Auto mode: the window is exactly one cycle.
+// Manual mode: the window is `cfg.trail` cycles. Fractional values show a
+// partial arc; values above 1 cause visible overdraw at crossings.
+export function computeTWindow(
   config: GyrographConfig,
-  fps: number = REFERENCE_FPS,
+  cycleT: number,
 ): number {
-  if (!config.autoTrail) {
-    return Math.max(0, Math.round(config.trail))
-  }
-
-  const ceilingFrames = Math.max(
-    1,
-    Math.round(config.maxHistorySeconds * fps),
-  )
-
-  const seconds = cycleTimeSeconds(config)
-  if (!Number.isFinite(seconds) || seconds <= 0) {
-    return ceilingFrames
-  }
-
-  const cycleFrames = Math.max(1, Math.round(seconds * fps))
-  return Math.min(cycleFrames, ceilingFrames)
-}
-
-// Returns the t-space window (in radians) that the render loop should use
-// when truncating the trail buffer in auto mode. Truncating by t-value
-// rather than point count makes the head-to-tail distance exactly one
-// cycle, which eliminates frame-rate-dependent drift and the associated
-// flicker at path crossings.
-export function computeCycleTWindow(config: GyrographConfig): number {
-  const ceilingT =
-    config.maxHistorySeconds * RADIANS_PER_SECOND * config.speed
-  const seconds = cycleTimeSeconds(config)
-  if (!Number.isFinite(seconds) || seconds <= 0) {
-    return ceilingT
-  }
-  const cycleT = seconds * RADIANS_PER_SECOND * config.speed
-  return Math.min(cycleT, ceilingT)
+  if (config.autoTrail) return cycleT
+  const cycles = Number.isFinite(config.trail) ? Math.max(0, config.trail) : 1
+  return cycles * cycleT
 }
