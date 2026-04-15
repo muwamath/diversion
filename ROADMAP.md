@@ -28,18 +28,22 @@ into a richer visual playground — more expressive configuration, more
 to see on screen, more to play with. Items ordered by current priority.
 
 1. ~~**Configurable trail alpha**~~ *done 2026-04-14 — `alpha` field, range 0.01–1.0, default 0.15. Also bumped `width` default from 1.5 to 2.*
-2. ~~**Configurable trail duration**~~ *done 2026-04-14 — trail
-   semantics unchanged at the buffer level (still per-segment FIFO,
-   one point per rAF frame, no fade), but the effective cap is now
-   cycle-derived by default. New global fields: `autoTrail` (default
-   `true`), `preDrawCycle` (default `false`), `maxHistorySeconds`
-   (default 180). When `autoTrail` is true, effective trail equals
-   one composed cycle's worth of frames at the reference 60fps rate,
-   capped at `maxHistorySeconds * 60`. When `preDrawCycle` is true,
-   the renderer pre-runs one full cycle at mount/config-change time
-   and pre-fills the segment buffers so the "chasing itself" state
-   is visible immediately. New helpers: `effectiveTrail.ts`
-   (`computeEffectiveTrail`) and `preDrawCycle.ts` (`preDrawBuffers`).*
+2. ~~**Configurable trail duration**~~ *done 2026-04-14 — trail is
+   now rendered from a pre-computed per-segment polyline sampled
+   across one math-space cycle (`2π * composedPeriodUnits` radians,
+   speed- and display-rate invariant). Each frame draws the visible
+   slice of that polyline corresponding to `[currentT − tWindow,
+   currentT]`. New global fields: `autoTrail` (default `true`),
+   `preDrawCycle` (default `false`), `maxHistorySeconds` (default
+   180, used only for non-periodic fallback). The `trail` field now
+   means "cycles" (float) and is only consulted when `autoTrail` is
+   false. `preDrawCycle=true` just sets the initial `tRef` to one
+   full `tWindow` so the chasing state is visible on frame 0. New
+   helper `cycleBuffer.ts` does the polyline pre-compute; drawing
+   handles wrap and chunk-boundary gaps. Deleted `fpsMeter.ts` and
+   `preDrawCycle.ts` (the previous approaches); the refactor was net
+   −340 lines. Flicker at path crossings eliminated because the
+   polyline is static — every frame draws the same pixels.*
 3. **Curated "interesting patterns" presets** — a row of preset
    buttons pinned above the config panel that set all knobs at once
    to visually striking combinations.
@@ -79,6 +83,25 @@ to see on screen, more to play with. Items ordered by current priority.
    new `chain.ts` (walkChain) and `cycleTime.ts` (composed LCM).
    Old flat URL shape intentionally dropped — no prod users. Spec:
    `docs/superpowers/specs/2026-04-14-nested-trochoid-chain-design.md`.*
+
+### Phase 2.3 — Rebrand + Gyrograph split · *pending · NEXT*
+Rename the project away from "diversion" and split Gyrograph into two
+sibling experiments sharing the same core math. Ordered by current priority.
+
+1. **Project rename** — pick a new name (TBD) and rename the repo,
+   `package.json`, CLAUDE.md mentions, README title, and gh-pages
+   subpath. Open questions: does the GitHub repo get renamed (breaking
+   the current live URL), or is it only the display name? Brand
+   direction: TBD.
+2. **Gyrograph Realtime** — a new experiment slug. Exact scope TBD.
+   Working hypothesis: real-time per-frame pen emission (today's pre-
+   refactor behavior), preserved as a distinct variant alongside the
+   new pure-math renderer. Details to be fleshed out when we start.
+3. **Gyrograph Canvas** — a new experiment slug. Exact scope TBD.
+   Working hypothesis: canvas-focused variant — maybe larger-surface
+   compositions, multi-pen grids, or a drawing surface the user can
+   stamp gyrograph traces onto. Details to be fleshed out when we
+   start.
 
 ### Phase 3 — Catalog · *pending*
 Grow from one experiment to several, with a landing page that lists them and
