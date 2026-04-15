@@ -257,9 +257,14 @@ export default function Controls({
           label="Trail"
           value={config.trail}
           min={0}
-          max={SAMPLES_PER_CYCLE}
-          step={50}
+          max={10 * SAMPLES_PER_CYCLE}
+          step={100}
           onChange={(trail) => onChange({ trail })}
+        />
+        <CheckboxInput
+          label="Zen draw-on"
+          value={config.zenDraw}
+          onChange={(zenDraw) => onChange({ zenDraw })}
         />
         <ColorPicker label="Background" value={config.bg} onChange={(bg) => onChange({ bg })} />
         <CheckboxInput label="Show arms" value={config.arms} onChange={(arms) => onChange({ arms })} />

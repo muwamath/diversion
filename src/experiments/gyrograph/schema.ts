@@ -15,6 +15,7 @@ export interface GyrographConfig {
   bg: string
   speed: number
   trail: number
+  zenDraw: boolean
   arms: boolean
   circles: boolean
   hideLive: boolean
@@ -121,6 +122,7 @@ export const schema = {
       bg,
       speed: num(params, 'speed', defaults.speed),
       trail: num(params, 'trail', defaults.trail),
+      zenDraw: bool(params, 'zenDraw', defaults.zenDraw),
       arms: bool(params, 'arms', defaults.arms),
       circles: bool(params, 'circles', defaults.circles),
       hideLive: bool(params, 'hideLive', defaults.hideLive),
@@ -135,6 +137,7 @@ export const schema = {
     p.set('bg', bgNoHash)
     p.set('speed', String(config.speed))
     p.set('trail', String(config.trail))
+    p.set('zenDraw', config.zenDraw ? '1' : '0')
     p.set('arms', config.arms ? '1' : '0')
     p.set('circles', config.circles ? '1' : '0')
     p.set('hideLive', config.hideLive ? '1' : '0')

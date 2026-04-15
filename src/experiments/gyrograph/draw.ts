@@ -13,6 +13,16 @@ export function isMechanismVisible(
   return mode === 'edit' || !hideLive
 }
 
+// Chunk size for splitting the polyline stroke into separate ctx.stroke()
+// calls. Chunk boundaries are at ABSOLUTE polyline indices (every multiple
+// of CHUNK_SIZE), so:
+//   - Boundaries don't rotate with startIdx (no moving-dot flicker).
+//   - Alpha composites between non-adjacent chunks that visually overlap
+//     at self-crossings of the curve (gives visible brightness at crosses).
+//   - When span > N (overdraw), the walker wraps through the same chunks
+//     multiple times and each pass composites on the previous.
+const CHUNK_SIZE = 100
+
 function computeMarginFrac(minDim: number): number {
   const raw = 0.01 + ((minDim - 500) / 1500) * 0.03
   return Math.max(0.01, Math.min(0.04, raw))
@@ -33,7 +43,7 @@ export function drawCurves(
   ctx: CanvasRenderingContext2D,
   config: GyrographConfig,
   polylines: Array<Array<{ x: number; y: number }>>,
-  currentIdx: number,
+  startIdx: number,
   span: number,
   extent: number,
 ) {
@@ -41,6 +51,10 @@ export function drawCurves(
   const dpr = window.devicePixelRatio || 1
   ctx.fillStyle = config.bg
   ctx.fillRect(0, 0, cw, ch)
+
+  if (span < 2) {
+    return
+  }
 
   const cwCss = cw / dpr
   const chCss = ch / dpr
@@ -59,19 +73,22 @@ export function drawCurves(
     const poly = polylines[k]
     if (!poly || poly.length < 2) continue
     const N = poly.length
-    const clampedSpan = Math.min(Math.max(0, span), N)
-    if (clampedSpan < 2) continue
+    const s = (((startIdx % N) + N) % N)
 
     ctx.globalAlpha = seg.alpha
     ctx.strokeStyle = seg.stroke
     ctx.lineWidth = seg.width / scale
 
-    const startIdx = (((currentIdx - clampedSpan + 1) % N) + N) % N
     ctx.beginPath()
-    ctx.moveTo(poly[startIdx].x, poly[startIdx].y)
-    for (let i = 1; i < clampedSpan; i++) {
-      const idx = (startIdx + i) % N
+    ctx.moveTo(poly[s].x, poly[s].y)
+    for (let i = 1; i < span; i++) {
+      const idx = (s + i) % N
       ctx.lineTo(poly[idx].x, poly[idx].y)
+      if (idx % CHUNK_SIZE === 0) {
+        ctx.stroke()
+        ctx.beginPath()
+        ctx.moveTo(poly[idx].x, poly[idx].y)
+      }
     }
     ctx.stroke()
   }

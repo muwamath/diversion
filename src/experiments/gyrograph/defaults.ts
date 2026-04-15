@@ -6,6 +6,7 @@ export const defaults: GyrographConfig = {
   bg: '#0a0a0a',
   speed: 1,
   trail: SAMPLES_PER_CYCLE,
+  zenDraw: false,
   arms: false,
   circles: false,
   hideLive: true,

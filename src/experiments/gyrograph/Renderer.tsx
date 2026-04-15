@@ -38,7 +38,10 @@ export default function Renderer({
   useEffect(() => {
     polylinesRef.current = buildCycleBuffer(config)
     tSpanRef.current = cycleTSpan(config)
-  }, [config.R, segmentKeysJoined, config.segments.length])
+    if (config.zenDraw) {
+      tRef.current = 0
+    }
+  }, [config.R, segmentKeysJoined, config.segments.length, config.zenDraw])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -58,13 +61,26 @@ export default function Renderer({
       const polylines = polylinesRef.current
       const tSpan = tSpanRef.current
       const N = polylines[0]?.length ?? 0
+      const tVal = tRef.current
       const currentIdx = N > 0
-        ? ((Math.floor((tRef.current / tSpan) * N) % N) + N) % N
+        ? ((Math.floor((tVal / tSpan) * N) % N) + N) % N
         : 0
-      const span = cfg.trail <= 0 ? N : Math.min(Math.round(cfg.trail), N)
+
+      let startIdx: number
+      let span: number
+      if (cfg.zenDraw && tVal < tSpan) {
+        // Zen growing phase: curve draws on from index 0 up to currentIdx.
+        startIdx = 0
+        span = Math.max(0, currentIdx + 1)
+      } else {
+        // Default: full cycle or rotating arc. Overdraw (span > N) is
+        // allowed and produces multi-pass alpha stacking inside draw.ts.
+        span = cfg.trail <= 0 ? N : Math.max(0, Math.round(cfg.trail))
+        startIdx = N > 0 ? (((currentIdx - span + 1) % N) + N) % N : 0
+      }
 
       const extent = extentRef.current
-      drawCurves(ctx, cfg, polylines, currentIdx, span, extent)
+      drawCurves(ctx, cfg, polylines, startIdx, span, extent)
 
       const frames: Frame[] = walkChain(
         cfg.R,

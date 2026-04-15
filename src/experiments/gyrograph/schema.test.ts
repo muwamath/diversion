@@ -20,6 +20,7 @@ describe('gyrograph schema', () => {
       bg: '#101018',
       speed: 1.5,
       trail: 1500,
+      zenDraw: true,
       arms: true,
       circles: false,
       hideLive: false,
