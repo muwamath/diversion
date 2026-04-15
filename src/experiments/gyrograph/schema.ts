@@ -15,9 +15,6 @@ export interface GyrographConfig {
   bg: string
   speed: number
   trail: number
-  autoTrail: boolean
-  preDrawCycle: boolean
-  maxHistorySeconds: number
   arms: boolean
   circles: boolean
   hideLive: boolean
@@ -124,9 +121,6 @@ export const schema = {
       bg,
       speed: num(params, 'speed', defaults.speed),
       trail: num(params, 'trail', defaults.trail),
-      autoTrail: bool(params, 'autoTrail', defaults.autoTrail),
-      preDrawCycle: bool(params, 'preDrawCycle', defaults.preDrawCycle),
-      maxHistorySeconds: num(params, 'maxHistorySeconds', defaults.maxHistorySeconds),
       arms: bool(params, 'arms', defaults.arms),
       circles: bool(params, 'circles', defaults.circles),
       hideLive: bool(params, 'hideLive', defaults.hideLive),
@@ -141,9 +135,6 @@ export const schema = {
     p.set('bg', bgNoHash)
     p.set('speed', String(config.speed))
     p.set('trail', String(config.trail))
-    p.set('autoTrail', config.autoTrail ? '1' : '0')
-    p.set('preDrawCycle', config.preDrawCycle ? '1' : '0')
-    p.set('maxHistorySeconds', String(config.maxHistorySeconds))
     p.set('arms', config.arms ? '1' : '0')
     p.set('circles', config.circles ? '1' : '0')
     p.set('hideLive', config.hideLive ? '1' : '0')

@@ -4,8 +4,11 @@ import { drawCurves, drawOverlay, isMechanismVisible } from './draw'
 import { walkChain, type Frame } from './chain'
 import { RADIANS_PER_SECOND } from './cycleTime'
 import { maxPenExtent } from './extent'
-import { buildCycleBuffer, type CycleBuffer } from './cycleBuffer'
-import { computeTWindow } from './effectiveTrail'
+import { buildCycleBuffer, cycleTSpan } from './cycleBuffer'
+
+function segmentGeoKey(seg: { r: number; side: string; d: number }) {
+  return `${seg.r}-${seg.side}-${seg.d}`
+}
 
 export default function Renderer({
   config,
@@ -19,7 +22,8 @@ export default function Renderer({
   mode?: 'edit' | 'live'
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const cycleBufferRef = useRef<CycleBuffer>(buildCycleBuffer(config))
+  const polylinesRef = useRef(buildCycleBuffer(config))
+  const tSpanRef = useRef(cycleTSpan(config))
   const tRef = useRef(0)
   const configRef = useRef(config)
   const extentRef = useRef(maxPenExtent(config))
@@ -29,29 +33,12 @@ export default function Renderer({
     extentRef.current = maxPenExtent(config)
   }, [config])
 
-  useEffect(() => {
-    const cb = buildCycleBuffer(config)
-    cycleBufferRef.current = cb
-    tRef.current = config.preDrawCycle ? computeTWindow(config, cb.cycleT) : 0
+  const segmentKeysJoined = config.segments.map(segmentGeoKey).join('|')
 
-    const canvas = canvasRef.current
-    if (canvas) {
-      const ctx = canvas.getContext('2d')
-      if (ctx) {
-        ctx.fillStyle = config.bg
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-      }
-    }
-  }, [
-    config.R,
-    config.segments.map((s) => `${s.r}-${s.side}-${s.d}`).join('|'),
-    config.segments.length,
-    config.speed,
-    config.maxHistorySeconds,
-    config.autoTrail,
-    config.trail,
-    config.preDrawCycle,
-  ])
+  useEffect(() => {
+    polylinesRef.current = buildCycleBuffer(config)
+    tSpanRef.current = cycleTSpan(config)
+  }, [config.R, segmentKeysJoined, config.segments.length])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -63,24 +50,26 @@ export default function Renderer({
 
     function loop() {
       const cfg = configRef.current
-      const cb = cycleBufferRef.current
       const now = performance.now()
       const dtSeconds = Math.min((now - lastTime) / 1000, 0.1)
       lastTime = now
       tRef.current += dtSeconds * RADIANS_PER_SECOND * cfg.speed
 
-      const currentT = tRef.current
-      const tWindow = computeTWindow(cfg, cb.cycleT)
-      const startT = Math.max(0, currentT - tWindow)
-      const endT = currentT
+      const polylines = polylinesRef.current
+      const tSpan = tSpanRef.current
+      const N = polylines[0]?.length ?? 0
+      const currentIdx = N > 0
+        ? ((Math.floor((tRef.current / tSpan) * N) % N) + N) % N
+        : 0
+      const span = cfg.trail <= 0 ? N : Math.min(Math.round(cfg.trail), N)
 
       const extent = extentRef.current
-      drawCurves(ctx, cfg, cb.polylines, cb.cycleT, startT, endT, extent)
+      drawCurves(ctx, cfg, polylines, currentIdx, span, extent)
 
       const frames: Frame[] = walkChain(
         cfg.R,
         cfg.segments.map((s) => ({ r: s.r, side: s.side, d: s.d })),
-        currentT,
+        tRef.current,
       )
       const visible = isMechanismVisible(mode, cfg.hideLive)
       drawOverlay(

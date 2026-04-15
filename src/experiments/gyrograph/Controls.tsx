@@ -1,4 +1,5 @@
 import type { GyrographConfig, Segment } from './schema'
+import { SAMPLES_PER_CYCLE } from './cycleBuffer'
 
 const MAX_SEGMENTS = 6
 const SEGMENT_PALETTE = ['#7AB6DE', '#ff6b6b', '#6bffaa', '#6bb8ff', '#ffaa3b', '#ff3bc4']
@@ -253,31 +254,12 @@ export default function Controls({
         <NumberInput label="Outer ring" value={config.R} min={20} max={500} step={1} onChange={(R) => onChange({ R })} />
         <NumberInput label="Speed" value={config.speed} min={0.001} max={5} step={0.001} onChange={(speed) => onChange({ speed })} />
         <NumberInput
-          label="Max history (sec)"
-          value={config.maxHistorySeconds}
-          min={1}
-          max={1800}
-          step={1}
-          onChange={(maxHistorySeconds) => onChange({ maxHistorySeconds })}
-        />
-        <CheckboxInput
-          label="Auto-size trail to cycle"
-          value={config.autoTrail}
-          onChange={(autoTrail) => onChange({ autoTrail })}
-        />
-        <CheckboxInput
-          label="Pre-draw one cycle"
-          value={config.preDrawCycle}
-          onChange={(preDrawCycle) => onChange({ preDrawCycle })}
-        />
-        <NumberInput
-          label="Trail (cycles)"
-          value={config.autoTrail ? 1 : config.trail}
+          label="Trail"
+          value={config.trail}
           min={0}
-          max={10}
-          step={0.1}
+          max={SAMPLES_PER_CYCLE}
+          step={50}
           onChange={(trail) => onChange({ trail })}
-          disabled={config.autoTrail}
         />
         <ColorPicker label="Background" value={config.bg} onChange={(bg) => onChange({ bg })} />
         <CheckboxInput label="Show arms" value={config.arms} onChange={(arms) => onChange({ arms })} />

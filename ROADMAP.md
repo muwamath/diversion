@@ -29,21 +29,23 @@ to see on screen, more to play with. Items ordered by current priority.
 
 1. ~~**Configurable trail alpha**~~ *done 2026-04-14 — `alpha` field, range 0.01–1.0, default 0.15. Also bumped `width` default from 1.5 to 2.*
 2. ~~**Configurable trail duration**~~ *done 2026-04-14 — trail is
-   now rendered from a pre-computed per-segment polyline sampled
-   across one math-space cycle (`2π * composedPeriodUnits` radians,
-   speed- and display-rate invariant). Each frame draws the visible
-   slice of that polyline corresponding to `[currentT − tWindow,
-   currentT]`. New global fields: `autoTrail` (default `true`),
-   `preDrawCycle` (default `false`), `maxHistorySeconds` (default
-   180, used only for non-periodic fallback). The `trail` field now
-   means "cycles" (float) and is only consulted when `autoTrail` is
-   false. `preDrawCycle=true` just sets the initial `tRef` to one
-   full `tWindow` so the chasing state is visible on frame 0. New
-   helper `cycleBuffer.ts` does the polyline pre-compute; drawing
-   handles wrap and chunk-boundary gaps. Deleted `fpsMeter.ts` and
-   `preDrawCycle.ts` (the previous approaches); the refactor was net
-   −340 lines. Flicker at path crossings eliminated because the
-   polyline is static — every frame draws the same pixels.*
+   rendered from a per-segment polyline of `SAMPLES_PER_CYCLE = 4000`
+   pen positions sampled uniformly across one math-space cycle
+   (`2π * composedPeriodUnits` radians, speed-invariant). On each
+   frame, the renderer draws a slice of length `span` ending at
+   `currentIdx = floor((tRef / tSpan) * N) mod N`. Single integer
+   `trail` config knob: `trail >= N` or `trail <= 0` draws the full
+   cycle (the default); `0 < trail < N` draws a rotating arc of
+   `trail` samples following the pen head. No chunking in the draw
+   loop — each segment is a single `beginPath`/`moveTo`/`lineTo`/
+   `stroke`, which eliminates the alpha-seam flicker. Polyline is
+   pure geometry (depends only on R + segment r/side/d), so speed,
+   color, alpha, width, trail, and visible changes don't rebuild
+   it. New helpers: `cycleBuffer.ts` (`buildCycleBuffer`, `cycleTSpan`,
+   `SAMPLES_PER_CYCLE`). Evolution: shipped once as an fps-dependent
+   buffer refactor, then re-shipped as pure math with three extra
+   fields (`autoTrail`, `preDrawCycle`, `maxHistorySeconds`), then
+   simplified back to a single-knob integer model per user feedback.*
 3. **Curated "interesting patterns" presets** — a row of preset
    buttons pinned above the config panel that set all knobs at once
    to visually striking combinations.

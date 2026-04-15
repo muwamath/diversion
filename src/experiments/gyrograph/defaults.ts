@@ -1,13 +1,11 @@
 import type { GyrographConfig } from './schema'
+import { SAMPLES_PER_CYCLE } from './cycleBuffer'
 
 export const defaults: GyrographConfig = {
   R: 199,
   bg: '#0a0a0a',
   speed: 1,
-  trail: 1,
-  autoTrail: true,
-  preDrawCycle: false,
-  maxHistorySeconds: 180,
+  trail: SAMPLES_PER_CYCLE,
   arms: false,
   circles: false,
   hideLive: true,

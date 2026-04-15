@@ -13,8 +13,6 @@ export function isMechanismVisible(
   return mode === 'edit' || !hideLive
 }
 
-const CHUNK_SIZE = 20
-
 function computeMarginFrac(minDim: number): number {
   const raw = 0.01 + ((minDim - 500) / 1500) * 0.03
   return Math.max(0.01, Math.min(0.04, raw))
@@ -35,18 +33,14 @@ export function drawCurves(
   ctx: CanvasRenderingContext2D,
   config: GyrographConfig,
   polylines: Array<Array<{ x: number; y: number }>>,
-  cycleT: number,
-  startT: number,
-  endT: number,
+  currentIdx: number,
+  span: number,
   extent: number,
 ) {
   const { width: cw, height: ch } = ctx.canvas
   const dpr = window.devicePixelRatio || 1
   ctx.fillStyle = config.bg
   ctx.fillRect(0, 0, cw, ch)
-
-  if (!(cycleT > 0) || endT <= startT) return
-  const span = endT - startT
 
   const cwCss = cw / dpr
   const chCss = ch / dpr
@@ -65,25 +59,19 @@ export function drawCurves(
     const poly = polylines[k]
     if (!poly || poly.length < 2) continue
     const N = poly.length
+    const clampedSpan = Math.min(Math.max(0, span), N)
+    if (clampedSpan < 2) continue
 
     ctx.globalAlpha = seg.alpha
     ctx.strokeStyle = seg.stroke
     ctx.lineWidth = seg.width / scale
 
-    const startFrac = ((startT % cycleT) + cycleT) % cycleT
-    const startIdx = Math.floor((startFrac / cycleT) * N) % N
-    const totalSlices = Math.max(1, Math.round((span / cycleT) * N))
-
+    const startIdx = (((currentIdx - clampedSpan + 1) % N) + N) % N
     ctx.beginPath()
     ctx.moveTo(poly[startIdx].x, poly[startIdx].y)
-    for (let i = 1; i <= totalSlices; i++) {
+    for (let i = 1; i < clampedSpan; i++) {
       const idx = (startIdx + i) % N
       ctx.lineTo(poly[idx].x, poly[idx].y)
-      if (i % CHUNK_SIZE === 0) {
-        ctx.stroke()
-        ctx.beginPath()
-        ctx.moveTo(poly[idx].x, poly[idx].y)
-      }
     }
     ctx.stroke()
   }

@@ -2,28 +2,31 @@ import type { GyrographConfig } from './schema'
 import { walkChain } from './chain'
 import { cycleTimeSeconds, RADIANS_PER_SECOND } from './cycleTime'
 
-export const SAMPLES_PER_CYCLE = 2000
+export const SAMPLES_PER_CYCLE = 4000
 
-export interface CycleBuffer {
-  polylines: Array<Array<{ x: number; y: number }>>
-  cycleT: number
-  isTruePeriodic: boolean
+// Used when the composed LCM exceeds its ceiling so cycleTimeSeconds
+// returns Infinity — i.e. the curve never closes exactly. Matches the
+// same fallback window extent.ts uses.
+const FALLBACK_T_RANGE = 2 * Math.PI * 1024
+
+// Returns the t-space span covered by one period of the given config's
+// pen motion. For truly periodic configs: `2π * composedPeriodUnits`
+// (speed-invariant by construction). For non-periodic configs: a fixed
+// fallback window large enough to show meaningful curve history.
+export function cycleTSpan(config: GyrographConfig): number {
+  const seconds = cycleTimeSeconds({ ...config, speed: 1 })
+  if (!Number.isFinite(seconds) || seconds <= 0) return FALLBACK_T_RANGE
+  return seconds * RADIANS_PER_SECOND
 }
 
-// Pre-computes one period of pen positions per segment. For truly periodic
-// configs (finite composed LCM), the polyline samples [0, 2\u03c0 * composedPeriodUnits)
-// in math-space — independent of display refresh rate AND independent of
-// speed (longer cycles at slow speed still have the same t-space period).
-// Only truly non-periodic configs (LCM ceiling exceeded in cycleTimeSeconds)
-// fall back to a virtual cycle spanning maxHistorySeconds of wall-clock.
-export function buildCycleBuffer(config: GyrographConfig): CycleBuffer {
-  const seconds = cycleTimeSeconds(config)
-  const isTruePeriodic = Number.isFinite(seconds) && seconds > 0
-
-  const cycleT = isTruePeriodic
-    ? seconds * RADIANS_PER_SECOND * config.speed
-    : config.maxHistorySeconds * RADIANS_PER_SECOND * config.speed
-
+// Pre-computes per-segment pen polylines by sampling walkChain at
+// SAMPLES_PER_CYCLE uniform t-values across one cycle span. The result
+// is purely a function of geometry (R + per-segment r/side/d), so
+// speed / alpha / color / trail changes do not invalidate it.
+export function buildCycleBuffer(
+  config: GyrographConfig,
+): Array<Array<{ x: number; y: number }>> {
+  const tSpan = cycleTSpan(config)
   const N = SAMPLES_PER_CYCLE
   const geometry = config.segments.map((s) => ({
     r: s.r,
@@ -34,7 +37,7 @@ export function buildCycleBuffer(config: GyrographConfig): CycleBuffer {
     config.segments.map(() => new Array(N))
 
   for (let i = 0; i < N; i++) {
-    const t = (i / N) * cycleT
+    const t = (tSpan * i) / N
     const frames = walkChain(config.R, geometry, t)
     for (let k = 0; k < frames.length; k++) {
       const f = frames[k]
@@ -45,5 +48,5 @@ export function buildCycleBuffer(config: GyrographConfig): CycleBuffer {
     }
   }
 
-  return { polylines, cycleT, isTruePeriodic }
+  return polylines
 }
