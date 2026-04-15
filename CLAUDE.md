@@ -26,13 +26,13 @@ Stack: Vite + React 19 + TypeScript. No styling library — plain CSS.
   outer circle `R` plus a chain of up to 6 rolling segments, each
   rolling inside or outside its parent. Every segment has its own pen,
   so N segments produce N curves from one linked mechanism. Globals:
-  `R`, `bg`, `speed`, `trail` (integer sample count), and mechanism-
-  overlay toggles (`arms`, `circles`, `hideLive`). Per-segment: `r`,
-  `side` (inside/outside), `d` (pen offset), `stroke`, `width`,
-  `alpha`, `visible`. UI labels are human-readable ("Outer ring",
-  "Wheel size", "Pen arm", "Color", "Opacity"); field names stay as
-  math letters in the schema and URL. The edit sidebar is three
-  regions — pinned-top cycle-time readout + experiment list,
+  `R`, `bg`, `speed`, `trail` (integer sample count), `zenDraw`, and
+  mechanism-overlay toggles (`arms`, `circles`, `hideLive`). Per-
+  segment: `r`, `side` (inside/outside), `d` (pen offset), `stroke`,
+  `width`, `alpha`, `visible`. UI labels are human-readable ("Outer
+  ring", "Wheel size", "Pen arm", "Color", "Opacity"); field names
+  stay as math letters in the schema and URL. The edit sidebar is
+  three regions — pinned-top cycle-time readout + experiment list,
   scrolling-middle globals and per-segment sections with add /
   remove / up-down reorder, pinned-bottom share bar. **Trail
   rendering is pure math:** `cycleBuffer.ts` pre-computes one period
@@ -40,15 +40,21 @@ Stack: Vite + React 19 + TypeScript. No styling library — plain CSS.
   sampled across `2π * composedPeriodUnits` radians, speed- and
   display-rate invariant). The renderer converts wall-clock into a
   polyline index `currentIdx = floor((tRef / tSpan) * N) mod N` and
-  draws a slice of length `trail` ending at `currentIdx` (a single
-  `beginPath`/`moveTo`/`lineTo`/`stroke` per segment, no chunking).
-  `trail` at or above `SAMPLES_PER_CYCLE` draws the full cycle; a
-  smaller value shows a rotating arc. Other math helpers: `chain.ts`
-  (`walkChain`), `cycleTime.ts` (composed LCM readout), `extent.ts`
-  (sampling-based max pen distance for canvas auto-fit). The renderer
-  scales the whole scene so the drawn curve fills most of the preview
-  with a responsive margin (1–4% depending on viewport size). URL
-  schema: globals as individual params, segments packed into one
+  draws a slice of length `trail` ending at `currentIdx`. `drawCurves`
+  walks the visible arc starting a new `ctx.stroke()` every
+  `CHUNK_SIZE = 100` polyline indices (absolute boundaries, so they
+  don't rotate with `startIdx`); this composites translucent
+  sub-strokes at self-crossings for visible alpha brightness, and
+  allows `trail > N` to give multi-pass overdraw for extra saturation.
+  `zenDraw` is an opt-in checkbox: when enabled, `tRef` resets to 0
+  on config change and the visible slice grows `[0, currentIdx]`
+  during the first cycle, then falls back to normal rotating/overdraw.
+  Other math helpers: `chain.ts` (`walkChain`), `cycleTime.ts`
+  (composed LCM readout), `extent.ts` (sampling-based max pen distance
+  for canvas auto-fit). The renderer scales the whole scene so the
+  drawn curve fills most of the preview with a responsive margin
+  (1–4% depending on viewport size). URL schema: globals as
+  individual params, segments packed into one
   `seg=r,side,d,stroke,width,alpha,visible;...` param.
 
 ## Conventions
