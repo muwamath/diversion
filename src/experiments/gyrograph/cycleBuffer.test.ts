@@ -34,14 +34,13 @@ describe('buildCycleBuffer', () => {
     expect(a.cycleT).toBeCloseTo(b.cycleT, 6)
   })
 
-  it('falls back to maxHistorySeconds * RADIANS_PER_SECOND * speed for long cycles', () => {
+  it('long wall-clock cycles still use the true math cycle', () => {
     const cfg = { ...base(), speed: 0.001 }
     const cb = buildCycleBuffer(cfg)
-    expect(cb.isTruePeriodic).toBe(false)
-    expect(cb.cycleT).toBeCloseTo(
-      cfg.maxHistorySeconds * RADIANS_PER_SECOND * cfg.speed,
-      6,
-    )
+    const atSpeed1 = buildCycleBuffer({ ...cfg, speed: 1 })
+    expect(cb.isTruePeriodic).toBe(true)
+    // cycleT is speed-invariant; slow speed doesn't truncate the polyline.
+    expect(cb.cycleT).toBeCloseTo(atSpeed1.cycleT, 6)
   })
 
   it('falls back for infinite cycles (pairwise-coprime prime segments)', () => {

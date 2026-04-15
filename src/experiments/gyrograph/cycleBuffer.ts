@@ -12,24 +12,17 @@ export interface CycleBuffer {
 
 // Pre-computes one period of pen positions per segment. For truly periodic
 // configs (finite composed LCM), the polyline samples [0, 2\u03c0 * composedPeriodUnits)
-// in math-space — independent of display refresh rate. For configs whose
-// cycle is effectively infinite or exceeds maxHistorySeconds, falls back to
-// a "virtual cycle" spanning maxHistorySeconds of wall-clock. That virtual
-// cycle will not close visually but the user has an obvious knob (Max
-// history) to widen it.
+// in math-space — independent of display refresh rate AND independent of
+// speed (longer cycles at slow speed still have the same t-space period).
+// Only truly non-periodic configs (LCM ceiling exceeded in cycleTimeSeconds)
+// fall back to a virtual cycle spanning maxHistorySeconds of wall-clock.
 export function buildCycleBuffer(config: GyrographConfig): CycleBuffer {
   const seconds = cycleTimeSeconds(config)
-  const fallbackT =
-    config.maxHistorySeconds * RADIANS_PER_SECOND * config.speed
-
-  const isTruePeriodic =
-    Number.isFinite(seconds) &&
-    seconds > 0 &&
-    seconds <= config.maxHistorySeconds
+  const isTruePeriodic = Number.isFinite(seconds) && seconds > 0
 
   const cycleT = isTruePeriodic
     ? seconds * RADIANS_PER_SECOND * config.speed
-    : fallbackT
+    : config.maxHistorySeconds * RADIANS_PER_SECOND * config.speed
 
   const N = SAMPLES_PER_CYCLE
   const geometry = config.segments.map((s) => ({
